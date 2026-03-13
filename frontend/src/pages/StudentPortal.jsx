@@ -3,21 +3,24 @@ import Navbar from "../components/Navbar";
 import StatCard from "../components/StatCard";
 import { useAuth } from "../context/AuthContext";
 
-// ── Mock data (remove when Ali's DB + Usman's APIs are live) ──
+// ── Mock data aligned with Ali's models ──
+// ServiceRequest fields: request_type, description, status, created_at
 const MOCK_REQUESTS = [
-  { id: 1, title: "Library Card Renewal", status: "pending", date: "2025-03-01" },
-  { id: 2, title: "Transcript Request", status: "completed", date: "2025-02-20" },
-  { id: 3, title: "Fee Clearance", status: "in_progress", date: "2025-02-28" },
+  { id: 1, request_type: "Library Card Renewal", status: "pending", created_at: "2025-03-01" },
+  { id: 2, request_type: "Transcript Request", status: "completed", created_at: "2025-02-20" },
+  { id: 3, request_type: "Fee Clearance", status: "in_progress", created_at: "2025-02-28" },
 ];
 
+// Complaint fields: description, priority, status, category_id, created_at
 const MOCK_COMPLAINTS = [
-  { id: 1, category: "Facilities", title: "AC not working in Room 204", status: "open", date: "2025-03-02" },
-  { id: 2, category: "Academic", title: "Grade dispute — CS301", status: "resolved", date: "2025-02-15" },
+  { id: 1, category: "Facilities", description: "AC not working in Room 204", priority: "high", status: "open", created_at: "2025-03-02" },
+  { id: 2, category: "Academic", description: "Grade dispute — CS301", priority: "medium", status: "resolved", created_at: "2025-02-15" },
 ];
 
+// Event fields: title, description, event_date, capacity
 const MOCK_EVENTS = [
-  { id: 1, title: "Tech Symposium 2025", date: "2025-03-20", venue: "Main Auditorium", registered: false },
-  { id: 2, title: "Career Fair", date: "2025-03-25", venue: "Sports Complex", registered: true },
+  { id: 1, title: "Tech Symposium 2025", event_date: "2025-03-20", description: "Annual tech event", capacity: 200, registered: false },
+  { id: 2, title: "Career Fair", event_date: "2025-03-25", description: "Meet top employers", capacity: 500, registered: true },
 ];
 
 const STATUS_COLORS = {
@@ -26,6 +29,15 @@ const STATUS_COLORS = {
   completed: "#10b981",
   open: "#ef4444",
   resolved: "#10b981",
+  requested: "#f59e0b",
+  confirmed: "#10b981",
+  cancelled: "#ef4444",
+};
+
+const PRIORITY_COLORS = {
+  high: "#ef4444",
+  medium: "#f59e0b",
+  low: "#10b981",
 };
 
 export default function StudentPortal() {
@@ -36,8 +48,9 @@ export default function StudentPortal() {
   const [complaints] = useState(MOCK_COMPLAINTS);
   const [events, setEvents] = useState(MOCK_EVENTS);
 
-  const [srForm, setSrForm] = useState({ title: "", description: "" });
-  const [compForm, setCompForm] = useState({ category: "", title: "", description: "" });
+  // Form state aligned with real model fields
+  const [srForm, setSrForm] = useState({ request_type: "", description: "" });
+  const [compForm, setCompForm] = useState({ category_id: "", description: "", priority: "medium" });
   const [formMsg, setFormMsg] = useState("");
 
   const tabs = [
@@ -51,21 +64,22 @@ export default function StudentPortal() {
     setEvents((prev) =>
       prev.map((e) => (e.id === eventId ? { ...e, registered: !e.registered } : e))
     );
-    // TODO: coordinationAPI.registerEvent(eventId)
+    // Real call: coordinationAPI.registerEvent(eventId)
+    // Creates: EventRegistration { event_id, student_id, attendance_status: "registered" }
   };
 
   const handleSRSubmit = () => {
-    if (!srForm.title) return;
-    setFormMsg("✓ Service request submitted (mock). Will call POST /service_requests once backend is live.");
-    setSrForm({ title: "", description: "" });
-    setTimeout(() => setFormMsg(""), 4000);
+    if (!srForm.request_type) return;
+    setFormMsg("✓ Request submitted (mock). Real call: POST /service_requests with { request_type, description }");
+    setSrForm({ request_type: "", description: "" });
+    setTimeout(() => setFormMsg(""), 5000);
   };
 
   const handleCompSubmit = () => {
-    if (!compForm.title) return;
-    setFormMsg("✓ Complaint submitted (mock). Will call POST /complaints once backend is live.");
-    setCompForm({ category: "", title: "", description: "" });
-    setTimeout(() => setFormMsg(""), 4000);
+    if (!compForm.description) return;
+    setFormMsg("✓ Complaint submitted (mock). Real call: POST /complaints with { description, priority, category_id }");
+    setCompForm({ category_id: "", description: "", priority: "medium" });
+    setTimeout(() => setFormMsg(""), 5000);
   };
 
   return (
@@ -73,7 +87,6 @@ export default function StudentPortal() {
       <Navbar />
       <main style={styles.main}>
 
-        {/* Page Header */}
         <header style={styles.header}>
           <div>
             <p style={styles.greeting}>Student Portal</p>
@@ -81,11 +94,10 @@ export default function StudentPortal() {
           </div>
           <div style={styles.idBadge}>
             <span style={styles.idLabel}>Student ID</span>
-            <span style={styles.idValue}>{user?.id?.toString().padStart(8, "0")}</span>
+            <span style={styles.idValue}>{String(user?.id || 1).padStart(8, "0")}</span>
           </div>
         </header>
 
-        {/* Tab Bar */}
         <div style={styles.tabBar}>
           {tabs.map((t) => (
             <button
@@ -98,13 +110,16 @@ export default function StudentPortal() {
           ))}
         </div>
 
-        {/* ── OVERVIEW ── */}
+        {/* OVERVIEW */}
         {activeTab === "overview" && (
           <section>
             <div style={styles.statsGrid}>
-              <StatCard label="Service Requests" value={requests.length} icon="📋" accent="#6366f1" sub={`${requests.filter(r => r.status === "pending").length} pending`} />
-              <StatCard label="Complaints" value={complaints.length} icon="📢" accent="#ef4444" sub={`${complaints.filter(c => c.status === "open").length} open`} />
-              <StatCard label="Events" value={events.length} icon="📅" accent="#0ea5e9" sub={`${events.filter(e => e.registered).length} registered`} />
+              <StatCard label="Service Requests" value={requests.length} icon="📋" accent="#6366f1"
+                sub={`${requests.filter(r => r.status === "pending").length} pending`} />
+              <StatCard label="Complaints" value={complaints.length} icon="📢" accent="#ef4444"
+                sub={`${complaints.filter(c => c.status === "open").length} open`} />
+              <StatCard label="Events" value={events.length} icon="📅" accent="#0ea5e9"
+                sub={`${events.filter(e => e.registered).length} registered`} />
               <StatCard label="Notifications" value="—" icon="🔔" accent="#10b981" sub="Connect backend" />
             </div>
 
@@ -115,11 +130,23 @@ export default function StudentPortal() {
                   <div key={r.id} style={styles.activityItem}>
                     <span style={styles.activityDot} />
                     <div>
-                      <p style={styles.activityTitle}>{r.title}</p>
-                      <p style={styles.activityMeta}>Service Request · {r.date}</p>
+                      <p style={styles.activityTitle}>{r.request_type}</p>
+                      <p style={styles.activityMeta}>Service Request · {r.created_at}</p>
                     </div>
                     <span style={{ ...styles.statusBadge, color: STATUS_COLORS[r.status], borderColor: `${STATUS_COLORS[r.status]}44` }}>
                       {r.status.replace("_", " ")}
+                    </span>
+                  </div>
+                ))}
+                {complaints.slice(0, 1).map((c) => (
+                  <div key={c.id} style={styles.activityItem}>
+                    <span style={{ ...styles.activityDot, background: "#ef4444" }} />
+                    <div>
+                      <p style={styles.activityTitle}>{c.description}</p>
+                      <p style={styles.activityMeta}>Complaint · {c.created_at}</p>
+                    </div>
+                    <span style={{ ...styles.statusBadge, color: STATUS_COLORS[c.status], borderColor: `${STATUS_COLORS[c.status]}44` }}>
+                      {c.status}
                     </span>
                   </div>
                 ))}
@@ -128,18 +155,17 @@ export default function StudentPortal() {
           </section>
         )}
 
-        {/* ── SERVICE REQUESTS ── */}
+        {/* SERVICE REQUESTS */}
         {activeTab === "service-requests" && (
           <section>
             <div style={styles.twoCol}>
-              {/* List */}
               <div style={styles.listPanel}>
                 <h2 style={styles.sectionTitle}>Your Requests</h2>
                 {requests.map((r) => (
                   <div key={r.id} style={styles.listItem}>
                     <div>
-                      <p style={styles.listItemTitle}>{r.title}</p>
-                      <p style={styles.listItemMeta}>{r.date}</p>
+                      <p style={styles.listItemTitle}>{r.request_type}</p>
+                      <p style={styles.listItemMeta}>{r.created_at}</p>
                     </div>
                     <span style={{ ...styles.statusBadge, color: STATUS_COLORS[r.status], borderColor: `${STATUS_COLORS[r.status]}44` }}>
                       {r.status.replace("_", " ")}
@@ -148,15 +174,14 @@ export default function StudentPortal() {
                 ))}
               </div>
 
-              {/* New Request Form */}
               <div style={styles.formPanel}>
                 <h2 style={styles.sectionTitle}>New Request</h2>
                 <div style={styles.formField}>
-                  <label style={styles.formLabel}>Request Title</label>
+                  <label style={styles.formLabel}>Request Type</label>
                   <input
                     style={styles.formInput}
-                    value={srForm.title}
-                    onChange={(e) => setSrForm((p) => ({ ...p, title: e.target.value }))}
+                    value={srForm.request_type}
+                    onChange={(e) => setSrForm((p) => ({ ...p, request_type: e.target.value }))}
                     placeholder="e.g. Transcript Request"
                   />
                 </div>
@@ -177,7 +202,7 @@ export default function StudentPortal() {
           </section>
         )}
 
-        {/* ── COMPLAINTS ── */}
+        {/* COMPLAINTS */}
         {activeTab === "complaints" && (
           <section>
             <div style={styles.twoCol}>
@@ -186,8 +211,13 @@ export default function StudentPortal() {
                 {complaints.map((c) => (
                   <div key={c.id} style={styles.listItem}>
                     <div>
-                      <p style={styles.listItemTitle}>{c.title}</p>
-                      <p style={styles.listItemMeta}>{c.category} · {c.date}</p>
+                      <p style={styles.listItemTitle}>{c.description}</p>
+                      <p style={styles.listItemMeta}>
+                        {c.category} · {c.created_at}
+                        <span style={{ ...styles.priorityTag, color: PRIORITY_COLORS[c.priority], borderColor: `${PRIORITY_COLORS[c.priority]}44` }}>
+                          {c.priority}
+                        </span>
+                      </p>
                     </div>
                     <span style={{ ...styles.statusBadge, color: STATUS_COLORS[c.status], borderColor: `${STATUS_COLORS[c.status]}44` }}>
                       {c.status}
@@ -202,32 +232,35 @@ export default function StudentPortal() {
                   <label style={styles.formLabel}>Category</label>
                   <select
                     style={styles.formInput}
-                    value={compForm.category}
-                    onChange={(e) => setCompForm((p) => ({ ...p, category: e.target.value }))}
+                    value={compForm.category_id}
+                    onChange={(e) => setCompForm((p) => ({ ...p, category_id: e.target.value }))}
                   >
                     <option value="">Select category</option>
-                    <option value="Academic">Academic</option>
-                    <option value="Facilities">Facilities</option>
-                    <option value="Administration">Administration</option>
-                    <option value="Other">Other</option>
+                    <option value="1">Academic</option>
+                    <option value="2">Facilities</option>
+                    <option value="3">Administration</option>
+                    <option value="4">Other</option>
                   </select>
                 </div>
                 <div style={styles.formField}>
-                  <label style={styles.formLabel}>Subject</label>
-                  <input
+                  <label style={styles.formLabel}>Priority</label>
+                  <select
                     style={styles.formInput}
-                    value={compForm.title}
-                    onChange={(e) => setCompForm((p) => ({ ...p, title: e.target.value }))}
-                    placeholder="Brief subject"
-                  />
+                    value={compForm.priority}
+                    onChange={(e) => setCompForm((p) => ({ ...p, priority: e.target.value }))}
+                  >
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
                 </div>
                 <div style={styles.formField}>
-                  <label style={styles.formLabel}>Details</label>
+                  <label style={styles.formLabel}>Description</label>
                   <textarea
                     style={styles.formTextarea}
                     value={compForm.description}
                     onChange={(e) => setCompForm((p) => ({ ...p, description: e.target.value }))}
-                    placeholder="Describe the issue..."
+                    placeholder="Describe the issue in detail..."
                     rows={4}
                   />
                 </div>
@@ -238,16 +271,17 @@ export default function StudentPortal() {
           </section>
         )}
 
-        {/* ── EVENTS ── */}
+        {/* EVENTS */}
         {activeTab === "events" && (
           <section>
             <h2 style={styles.sectionTitle}>Upcoming Events</h2>
             <div style={styles.eventsGrid}>
               {events.map((ev) => (
                 <div key={ev.id} style={styles.eventCard}>
-                  <div style={styles.eventDate}>{ev.date}</div>
+                  <div style={styles.eventDate}>{ev.event_date}</div>
                   <h3 style={styles.eventTitle}>{ev.title}</h3>
-                  <p style={styles.eventVenue}>📍 {ev.venue}</p>
+                  <p style={styles.eventDesc}>{ev.description}</p>
+                  <p style={styles.eventCapacity}>Capacity: {ev.capacity} seats</p>
                   <button
                     style={ev.registered ? { ...styles.eventBtn, ...styles.eventBtnRegistered } : styles.eventBtn}
                     onClick={() => handleRegisterEvent(ev.id)}
@@ -270,133 +304,40 @@ const styles = {
   header: { display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 36 },
   greeting: { margin: "0 0 4px", fontSize: 12, color: "#64748b", fontFamily: "monospace", letterSpacing: "0.08em", textTransform: "uppercase" },
   name: { margin: 0, fontSize: 32, color: "#e2e8f0", fontFamily: "'Georgia', serif", fontWeight: "normal" },
-  idBadge: {
-    textAlign: "right",
-    padding: "12px 20px",
-    border: "1px solid rgba(99,102,241,0.2)",
-    borderRadius: 2,
-  },
+  idBadge: { textAlign: "right", padding: "12px 20px", border: "1px solid rgba(99,102,241,0.2)", borderRadius: 2 },
   idLabel: { display: "block", fontSize: 10, color: "#475569", fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 4 },
   idValue: { fontSize: 18, color: "#818cf8", fontFamily: "monospace" },
-  tabBar: { display: "flex", gap: 2, marginBottom: 36, borderBottom: "1px solid rgba(99,102,241,0.12)", paddingBottom: 0 },
-  tab: {
-    background: "transparent",
-    border: "none",
-    padding: "10px 20px",
-    fontSize: 13,
-    color: "#475569",
-    cursor: "pointer",
-    fontFamily: "monospace",
-    letterSpacing: "0.03em",
-    borderBottom: "2px solid transparent",
-    marginBottom: -1,
-    transition: "color 0.15s",
-  },
+  tabBar: { display: "flex", gap: 2, marginBottom: 36, borderBottom: "1px solid rgba(99,102,241,0.12)" },
+  tab: { background: "transparent", border: "none", padding: "10px 20px", fontSize: 13, color: "#475569", cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.03em", borderBottom: "2px solid transparent", marginBottom: -1 },
   tabActive: { color: "#818cf8", borderBottomColor: "#6366f1" },
   statsGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 16, marginBottom: 36 },
   section: {},
   sectionTitle: { fontSize: 13, color: "#64748b", fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", margin: "0 0 16px" },
-  activityList: { display: "flex", flexDirection: "column", gap: 0 },
-  activityItem: {
-    display: "flex",
-    alignItems: "center",
-    gap: 14,
-    padding: "14px 0",
-    borderBottom: "1px solid rgba(99,102,241,0.08)",
-  },
+  activityList: { display: "flex", flexDirection: "column" },
+  activityItem: { display: "flex", alignItems: "center", gap: 14, padding: "14px 0", borderBottom: "1px solid rgba(99,102,241,0.08)" },
   activityDot: { width: 6, height: 6, borderRadius: "50%", background: "#6366f1", flexShrink: 0 },
   activityTitle: { margin: "0 0 2px", fontSize: 14, color: "#e2e8f0" },
   activityMeta: { margin: 0, fontSize: 11, color: "#475569", fontFamily: "monospace" },
-  statusBadge: {
-    marginLeft: "auto",
-    fontSize: 10,
-    padding: "3px 10px",
-    border: "1px solid",
-    borderRadius: 2,
-    textTransform: "uppercase",
-    letterSpacing: "0.08em",
-    fontFamily: "monospace",
-    flexShrink: 0,
-  },
+  statusBadge: { marginLeft: "auto", fontSize: 10, padding: "3px 10px", border: "1px solid", borderRadius: 2, textTransform: "uppercase", letterSpacing: "0.08em", fontFamily: "monospace", flexShrink: 0 },
+  priorityTag: { marginLeft: 8, fontSize: 10, padding: "2px 8px", border: "1px solid", borderRadius: 2, textTransform: "uppercase", letterSpacing: "0.06em", fontFamily: "monospace" },
   twoCol: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 32 },
   listPanel: {},
-  listItem: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "14px 16px",
-    border: "1px solid rgba(99,102,241,0.1)",
-    borderRadius: 2,
-    marginBottom: 8,
-    background: "rgba(15,15,25,0.6)",
-  },
+  listItem: { display: "flex", justifyContent: "space-between", alignItems: "center", padding: "14px 16px", border: "1px solid rgba(99,102,241,0.1)", borderRadius: 2, marginBottom: 8, background: "rgba(15,15,25,0.6)" },
   listItemTitle: { margin: "0 0 2px", fontSize: 14, color: "#e2e8f0" },
-  listItemMeta: { margin: 0, fontSize: 11, color: "#475569", fontFamily: "monospace" },
+  listItemMeta: { margin: 0, fontSize: 11, color: "#475569", fontFamily: "monospace", display: "flex", alignItems: "center", gap: 4 },
   formPanel: {},
   formField: { marginBottom: 16 },
   formLabel: { display: "block", fontSize: 10, color: "#64748b", fontFamily: "monospace", letterSpacing: "0.1em", textTransform: "uppercase", marginBottom: 6 },
-  formInput: {
-    width: "100%",
-    background: "rgba(99,102,241,0.04)",
-    border: "1px solid rgba(99,102,241,0.15)",
-    borderRadius: 2,
-    padding: "10px 14px",
-    color: "#e2e8f0",
-    fontSize: 14,
-    outline: "none",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-  },
-  formTextarea: {
-    width: "100%",
-    background: "rgba(99,102,241,0.04)",
-    border: "1px solid rgba(99,102,241,0.15)",
-    borderRadius: 2,
-    padding: "10px 14px",
-    color: "#e2e8f0",
-    fontSize: 14,
-    outline: "none",
-    resize: "vertical",
-    boxSizing: "border-box",
-    fontFamily: "inherit",
-  },
-  submitBtn: {
-    background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-    border: "none",
-    borderRadius: 2,
-    padding: "11px 24px",
-    color: "#fff",
-    fontSize: 13,
-    cursor: "pointer",
-    fontFamily: "monospace",
-    letterSpacing: "0.05em",
-  },
-  formMsg: { marginTop: 12, fontSize: 12, color: "#818cf8", fontFamily: "monospace" },
+  formInput: { width: "100%", background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 2, padding: "10px 14px", color: "#e2e8f0", fontSize: 14, outline: "none", boxSizing: "border-box", fontFamily: "inherit" },
+  formTextarea: { width: "100%", background: "rgba(99,102,241,0.04)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 2, padding: "10px 14px", color: "#e2e8f0", fontSize: 14, outline: "none", resize: "vertical", boxSizing: "border-box", fontFamily: "inherit" },
+  submitBtn: { background: "linear-gradient(135deg, #4f46e5, #7c3aed)", border: "none", borderRadius: 2, padding: "11px 24px", color: "#fff", fontSize: 13, cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.05em" },
+  formMsg: { marginTop: 12, fontSize: 11, color: "#818cf8", fontFamily: "monospace", lineHeight: 1.6 },
   eventsGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 },
-  eventCard: {
-    background: "rgba(15,15,25,0.8)",
-    border: "1px solid rgba(99,102,241,0.15)",
-    borderRadius: 2,
-    padding: "24px",
-  },
+  eventCard: { background: "rgba(15,15,25,0.8)", border: "1px solid rgba(99,102,241,0.15)", borderRadius: 2, padding: "24px" },
   eventDate: { fontSize: 11, color: "#6366f1", fontFamily: "monospace", marginBottom: 8 },
   eventTitle: { margin: "0 0 6px", fontSize: 16, color: "#e2e8f0", fontWeight: "normal", fontFamily: "'Georgia', serif" },
-  eventVenue: { margin: "0 0 16px", fontSize: 12, color: "#475569" },
-  eventBtn: {
-    background: "transparent",
-    border: "1px solid rgba(99,102,241,0.4)",
-    borderRadius: 2,
-    padding: "7px 18px",
-    color: "#818cf8",
-    fontSize: 12,
-    cursor: "pointer",
-    fontFamily: "monospace",
-    letterSpacing: "0.05em",
-    transition: "all 0.15s",
-  },
-  eventBtnRegistered: {
-    background: "rgba(16,185,129,0.1)",
-    border: "1px solid rgba(16,185,129,0.3)",
-    color: "#6ee7b7",
-  },
+  eventDesc: { margin: "0 0 6px", fontSize: 12, color: "#64748b" },
+  eventCapacity: { margin: "0 0 16px", fontSize: 11, color: "#475569", fontFamily: "monospace" },
+  eventBtn: { background: "transparent", border: "1px solid rgba(99,102,241,0.4)", borderRadius: 2, padding: "7px 18px", color: "#818cf8", fontSize: 12, cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.05em" },
+  eventBtnRegistered: { background: "rgba(16,185,129,0.1)", border: "1px solid rgba(16,185,129,0.3)", color: "#6ee7b7" },
 };
