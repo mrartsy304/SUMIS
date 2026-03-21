@@ -54,7 +54,7 @@ export default function App() {
                 <AdminPortal />
               </ProtectedRoute>
             }
-          />
+          />                                        {/* ← this was missing */}
 
           {/* Catch-all */}
           <Route path="*" element={<Navigate to="/" replace />} />
