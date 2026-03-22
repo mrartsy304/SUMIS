@@ -3,29 +3,37 @@ import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = {
   student: [
-    { label: "Dashboard",        path: "/dashboard/student" },
+    { label: "Dashboard",      path: "/dashboard/student" },
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
-    { label: "Complaints",       path: "/dashboard/student#complaints" },
-    { label: "Events",           path: "/dashboard/student#events" },
-    { label: "Departments",      path: "/dashboard/student#departments" }, // FR-02 added
+    { label: "Complaints",     path: "/dashboard/student#complaints" },
+    { label: "Events",         path: "/dashboard/student#events" },
+    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   faculty: [
     { label: "Dashboard",      path: "/dashboard/faculty" },
     { label: "Appointments",   path: "/dashboard/faculty#appointments" },
     { label: "Announcements",  path: "/dashboard/faculty#announcements" },
+    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   admin: [
-    { label: "Dashboard",   path: "/dashboard/admin" },
-    { label: "Users",       path: "/dashboard/admin#users" },
-    { label: "Reports",     path: "/dashboard/admin#reports" },
-    { label: "Departments", path: "/dashboard/admin#departments" },
+    { label: "Dashboard",      path: "/dashboard/admin" },
+    { label: "Users",          path: "/dashboard/admin#users" },
+    { label: "Reports",        path: "/dashboard/admin#reports" },
+    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   staff: [
-    { label: "Dashboard", path: "/dashboard" },
+    { label: "Dashboard",      path: "/dashboard" },
+    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   event_coordinator: [
-    { label: "Dashboard", path: "/dashboard" },
-    { label: "Events",    path: "/dashboard#events" },
+    { label: "Dashboard",      path: "/dashboard" },
+    { label: "Events",         path: "/dashboard#events" },
+    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
 };
 
@@ -55,13 +63,11 @@ export default function Navbar() {
   return (
     <nav style={styles.nav}>
       <div style={styles.inner}>
-        {/* Brand */}
         <div style={styles.brand} onClick={() => navigate("/dashboard")} role="button">
           <span style={styles.brandIcon}>◈</span>
           <span style={styles.brandName}>SUMIS</span>
         </div>
 
-        {/* Links */}
         <div style={styles.links}>
           {links.map((l) => {
             const active = location.pathname === l.path.split("#")[0];
@@ -70,10 +76,7 @@ export default function Navbar() {
                 key={l.label}
                 href={l.path}
                 style={active ? { ...styles.link, ...styles.linkActive } : styles.link}
-                onClick={(e) => {
-                  e.preventDefault();
-                  navigate(l.path.split("#")[0]);
-                }}
+                onClick={(e) => { e.preventDefault(); navigate(l.path.split("#")[0]); }}
               >
                 {l.label}
               </a>
@@ -81,15 +84,12 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* User pill */}
         <div style={styles.userArea}>
           <div style={{ ...styles.roleBadge, borderColor: roleColor, color: roleColor }}>
             {user.role.replace("_", " ")}
           </div>
           <span style={styles.userName}>{user.name}</span>
-          <button style={styles.logoutBtn} onClick={handleLogout}>
-            Sign Out
-          </button>
+          <button style={styles.logoutBtn} onClick={handleLogout}>Sign Out</button>
         </div>
       </div>
     </nav>
@@ -97,70 +97,16 @@ export default function Navbar() {
 }
 
 const styles = {
-  nav: {
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    background: "rgba(10,10,15,0.92)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(99,102,241,0.12)",
-  },
-  inner: {
-    maxWidth: 1280,
-    margin: "0 auto",
-    padding: "0 32px",
-    height: 60,
-    display: "flex",
-    alignItems: "center",
-    gap: 32,
-  },
-  brand: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    cursor: "pointer",
-    flexShrink: 0,
-  },
-  brandIcon: { fontSize: 18, color: "#818cf8" },
-  brandName: {
-    fontSize: 15,
-    fontWeight: "normal",
-    color: "#e2e8f0",
-    letterSpacing: "0.25em",
-    fontFamily: "'Georgia', serif",
-  },
-  links: { display: "flex", gap: 4, flex: 1 },
-  link: {
-    padding: "6px 14px",
-    borderRadius: 2,
-    fontSize: 13,
-    color: "#64748b",
-    textDecoration: "none",
-    transition: "color 0.15s",
-    fontFamily: "monospace",
-    letterSpacing: "0.02em",
-  },
+  nav:        { position: "sticky", top: 0, zIndex: 100, background: "rgba(10,10,15,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(99,102,241,0.12)" },
+  inner:      { maxWidth: 1280, margin: "0 auto", padding: "0 32px", height: 60, display: "flex", alignItems: "center", gap: 32 },
+  brand:      { display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flexShrink: 0 },
+  brandIcon:  { fontSize: 18, color: "#818cf8" },
+  brandName:  { fontSize: 15, fontWeight: "normal", color: "#e2e8f0", letterSpacing: "0.25em", fontFamily: "'Georgia', serif" },
+  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
+  link:       { padding: "6px 12px", borderRadius: 2, fontSize: 12, color: "#64748b", textDecoration: "none", fontFamily: "monospace", letterSpacing: "0.02em" },
   linkActive: { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
-  userArea: { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
-  roleBadge: {
-    fontSize: 10,
-    padding: "3px 10px",
-    border: "1px solid",
-    borderRadius: 2,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    fontFamily: "monospace",
-  },
-  userName: { fontSize: 13, color: "#94a3b8" },
-  logoutBtn: {
-    background: "transparent",
-    border: "1px solid rgba(239,68,68,0.25)",
-    borderRadius: 2,
-    padding: "5px 12px",
-    fontSize: 12,
-    color: "#f87171",
-    cursor: "pointer",
-    fontFamily: "monospace",
-    letterSpacing: "0.05em",
-  },
+  userArea:   { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
+  roleBadge:  { fontSize: 10, padding: "3px 10px", border: "1px solid", borderRadius: 2, textTransform: "uppercase", letterSpacing: "0.12em", fontFamily: "monospace" },
+  userName:   { fontSize: 13, color: "#94a3b8" },
+  logoutBtn:  { background: "transparent", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 2, padding: "5px 12px", fontSize: 12, color: "#f87171", cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.05em" },
 };
