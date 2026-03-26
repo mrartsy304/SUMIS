@@ -5,6 +5,7 @@ from dotenv import load_dotenv
 
 from app.models import db
 from app.routes.departments import departments_bp
+from app.routes.staff import staff_bp          # FR-03
 
 load_dotenv()
 
@@ -22,10 +23,6 @@ def create_app() -> Flask:
         static_url_path="/",
     )
 
-    # FIX 1: Disable strict slashes globally so /api/departments and
-    # /api/departments/ are treated as the same route. Without this Flask
-    # returns a 308 redirect for the version without a trailing slash,
-    # which axios follows but the CORS preflight then fails.
     app.url_map.strict_slashes = False
 
     db_url = os.getenv("DATABASE_URL", "")
@@ -38,14 +35,11 @@ def create_app() -> Flask:
 
     db.init_app(app)
 
-    # FIX 2: withCredentials:true in axios is incompatible with origins="*".
-    # The browser blocks the response when both are set simultaneously.
-    # Solution: explicitly list the React dev server origin and set
-    # supports_credentials=True. Add your production domain here later.
     CORS(
         app,
         resources={r"/api/*": {
             "origins": [
+                "http://localhost:3000",
                 "http://localhost:5000",
                 "http://127.0.0.1:5000",
             ],
@@ -53,7 +47,9 @@ def create_app() -> Flask:
         }},
     )
 
-    app.register_blueprint(departments_bp)
+    # ── Register Blueprints ───────────────────────────────────
+    app.register_blueprint(departments_bp)   # FR-02 — Ali
+    app.register_blueprint(staff_bp)         # FR-03 — Qadir
 
     @app.route("/", defaults={"path": ""})
     @app.route("/<path:path>")
