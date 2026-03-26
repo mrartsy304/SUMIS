@@ -2,13 +2,11 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import Login          from "./pages/Login";
-import Dashboard      from "./pages/Dashboard";
-import StudentPortal  from "./pages/StudentPortal";
-import FacultyPortal  from "./pages/FacultyPortal";
-import AdminPortal    from "./pages/AdminPortal";
-import Departmentspage from "./pages/Departmentspage";   // FR-02 — Ali
-import OfficeLocator  from "./pages/OfficeLocator";      // FR-03 — Qadir
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import StudentPortal from "./pages/StudentPortal";
+import FacultyPortal from "./pages/FacultyPortal";
+import AdminPortal from "./pages/AdminPortal";
 
 export default function App() {
   return (
@@ -54,26 +52,6 @@ export default function App() {
             element={
               <ProtectedRoute roles={["admin"]}>
                 <AdminPortal />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* FR-02 — Ali: Department Information Page */}
-          <Route
-            path="/departments"
-            element={
-              <ProtectedRoute>
-                <Departmentspage />
-              </ProtectedRoute>
-            }
-          />
-
-          {/* FR-03 — Qadir: Faculty & Staff Office Locator */}
-          <Route
-            path="/office-locator"
-            element={
-              <ProtectedRoute>
-                <OfficeLocator />
               </ProtectedRoute>
             }
           />
