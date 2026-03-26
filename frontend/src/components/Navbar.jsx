@@ -3,20 +3,21 @@ import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = {
   student: [
-    { label: "Dashboard", path: "/dashboard/student" },
+    { label: "Dashboard",        path: "/dashboard/student" },
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
-    { label: "Complaints", path: "/dashboard/student#complaints" },
-    { label: "Events", path: "/dashboard/student#events" },
+    { label: "Complaints",       path: "/dashboard/student#complaints" },
+    { label: "Events",           path: "/dashboard/student#events" },
+    { label: "Departments",      path: "/dashboard/student#departments" }, // FR-02 added
   ],
   faculty: [
-    { label: "Dashboard", path: "/dashboard/faculty" },
-    { label: "Appointments", path: "/dashboard/faculty#appointments" },
-    { label: "Announcements", path: "/dashboard/faculty#announcements" },
+    { label: "Dashboard",      path: "/dashboard/faculty" },
+    { label: "Appointments",   path: "/dashboard/faculty#appointments" },
+    { label: "Announcements",  path: "/dashboard/faculty#announcements" },
   ],
   admin: [
-    { label: "Dashboard", path: "/dashboard/admin" },
-    { label: "Users", path: "/dashboard/admin#users" },
-    { label: "Reports", path: "/dashboard/admin#reports" },
+    { label: "Dashboard",   path: "/dashboard/admin" },
+    { label: "Users",       path: "/dashboard/admin#users" },
+    { label: "Reports",     path: "/dashboard/admin#reports" },
     { label: "Departments", path: "/dashboard/admin#departments" },
   ],
   staff: [
@@ -24,15 +25,15 @@ const NAV_LINKS = {
   ],
   event_coordinator: [
     { label: "Dashboard", path: "/dashboard" },
-    { label: "Events", path: "/dashboard#events" },
+    { label: "Events",    path: "/dashboard#events" },
   ],
 };
 
 const ROLE_COLORS = {
-  student: "#6366f1",
-  faculty: "#0ea5e9",
-  admin: "#f59e0b",
-  staff: "#10b981",
+  student:           "#6366f1",
+  faculty:           "#0ea5e9",
+  admin:             "#f59e0b",
+  staff:             "#10b981",
   event_coordinator: "#ec4899",
 };
 
@@ -69,7 +70,10 @@ export default function Navbar() {
                 key={l.label}
                 href={l.path}
                 style={active ? { ...styles.link, ...styles.linkActive } : styles.link}
-                onClick={(e) => { e.preventDefault(); navigate(l.path.split("#")[0]); }}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(l.path.split("#")[0]);
+                }}
               >
                 {l.label}
               </a>
