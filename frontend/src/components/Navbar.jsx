@@ -7,7 +7,8 @@ const NAV_LINKS = {
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
     { label: "Complaints",       path: "/dashboard/student#complaints" },
     { label: "Events",           path: "/dashboard/student#events" },
-    { label: "Departments",      path: "/dashboard/student#departments" }, // FR-02 added
+    { label: "Departments",      path: "/dashboard/student#departments" },
+    { label: "Procedures",       path: "/procedures" },   // ← FR-04 added
   ],
   faculty: [
     { label: "Dashboard",      path: "/dashboard/faculty" },
@@ -65,17 +66,24 @@ export default function Navbar() {
         <div style={styles.links}>
           {links.map((l) => {
             const active = location.pathname === l.path.split("#")[0];
+            const isProcedures = l.path === "/procedures";
             return (
               <a
                 key={l.label}
                 href={l.path}
-                style={active ? { ...styles.link, ...styles.linkActive } : styles.link}
+                style={
+                  active
+                    ? { ...styles.link, ...styles.linkActive }
+                    : isProcedures
+                    ? { ...styles.link, ...styles.linkProcedures }
+                    : styles.link
+                }
                 onClick={(e) => {
                   e.preventDefault();
                   navigate(l.path.split("#")[0]);
                 }}
               >
-                {l.label}
+                {isProcedures ? "📋 " + l.label : l.label}
               </a>
             );
           })}
@@ -141,6 +149,11 @@ const styles = {
     letterSpacing: "0.02em",
   },
   linkActive: { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
+  linkProcedures: {
+    color: "#818cf8",
+    border: "1px solid rgba(99,102,241,0.3)",
+    borderRadius: 4,
+  },
   userArea: { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
   roleBadge: {
     fontSize: 10,
