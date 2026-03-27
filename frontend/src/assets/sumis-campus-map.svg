@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0b1020"/>
+      <stop offset="1" stop-color="#070a12"/>
+    </linearGradient>
+    <style>
+      .road { stroke: #1f2a44; stroke-width: 10; stroke-linecap: round; fill: none; opacity: 0.9; }
+      .walk { stroke: #16213a; stroke-width: 6; stroke-linecap: round; fill: none; opacity: 0.9; }
+      .block { stroke: rgba(99,102,241,0.55); stroke-width: 3; fill: rgba(99,102,241,0.12); }
+      .label { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace; fill: rgba(226,232,240,0.95); font-size: 20px; }
+      .small { font-size: 14px; opacity: 0.85; }
+    </style>
+  </defs>
+
+  <!-- Map background -->
+  <rect x="0" y="0" width="1200" height="800" fill="url(#bg)"/>
+
+  <!-- Roads -->
+  <path class="road" d="M 80 120 C 260 70, 420 80, 560 170 C 720 270, 900 270, 1120 220"/>
+  <path class="road" d="M 140 660 C 320 560, 460 520, 620 560 C 770 600, 950 640, 1080 720"/>
+  <path class="walk" d="M 620 110 C 650 250, 660 420, 640 690"/>
+  <path class="walk" d="M 310 210 C 390 280, 470 350, 560 420"/>
+
+  <!-- Blocks -->
+  <rect class="block" x="170" y="140" width="210" height="150" rx="10"/>
+  <text class="label" x="220" y="210">Block A</text>
+  <text class="label small" x="245" y="238">CS Building</text>
+
+  <rect class="block" x="420" y="310" width="240" height="190" rx="10"/>
+  <text class="label" x="470" y="402">Block B</text>
+  <text class="label small" x="490" y="430">SE Building</text>
+
+  <rect class="block" x="705" y="120" width="255" height="170" rx="10"/>
+  <text class="label" x="760" y="215">Block C</text>
+  <text class="label small" x="760" y="242">AI Building</text>
+
+  <rect class="block" x="820" y="500" width="255" height="185" rx="10"/>
+  <text class="label" x="870" y="590">Block D</text>
+  <text class="label small" x="875" y="618">DS Building</text>
+
+  <!-- Legend -->
+  <g transform="translate(40,40)">
+    <rect x="0" y="0" width="330" height="90" rx="12" fill="rgba(2,6,23,0.55)" stroke="rgba(148,163,184,0.18)"/>
+    <text class="label small" x="16" y="34" fill="rgba(165,180,252,0.95)">Campus layout (custom)</text>
+    <text class="label small" x="16" y="58" fill="rgba(148,163,184,0.92)">Markers use stored map coordinates</text>
+  </g>
+</svg>
+
