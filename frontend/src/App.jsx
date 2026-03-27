@@ -7,6 +7,7 @@ import Dashboard from "./pages/Dashboard";
 import StudentPortal from "./pages/StudentPortal";
 import FacultyPortal from "./pages/FacultyPortal";
 import AdminPortal from "./pages/AdminPortal";
+import CampusMapPage from "./pages/CampusMapPage";
 
 export default function App() {
   return (
@@ -52,6 +53,16 @@ export default function App() {
             element={
               <ProtectedRoute roles={["admin"]}>
                 <AdminPortal />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* FR-01: Campus Map */}
+          <Route
+            path="/campus-map"
+            element={
+              <ProtectedRoute roles={["student", "faculty", "admin", "staff", "event_coordinator"]}>
+                <CampusMapPage />
               </ProtectedRoute>
             }
           />

@@ -8,24 +8,29 @@ const NAV_LINKS = {
     { label: "Complaints",       path: "/dashboard/student#complaints" },
     { label: "Events",           path: "/dashboard/student#events" },
     { label: "Departments",      path: "/dashboard/student#departments" }, // FR-02 added
+    { label: "Campus Map",       path: "/campus-map" }, // FR-01
   ],
   faculty: [
     { label: "Dashboard",      path: "/dashboard/faculty" },
     { label: "Appointments",   path: "/dashboard/faculty#appointments" },
     { label: "Announcements",  path: "/dashboard/faculty#announcements" },
+    { label: "Campus Map",     path: "/campus-map" }, // FR-01
   ],
   admin: [
     { label: "Dashboard",   path: "/dashboard/admin" },
     { label: "Users",       path: "/dashboard/admin#users" },
     { label: "Reports",     path: "/dashboard/admin#reports" },
     { label: "Departments", path: "/dashboard/admin#departments" },
+    { label: "Campus Map",  path: "/campus-map" }, // FR-01
   ],
   staff: [
     { label: "Dashboard", path: "/dashboard" },
+    { label: "Campus Map", path: "/campus-map" }, // FR-01
   ],
   event_coordinator: [
     { label: "Dashboard", path: "/dashboard" },
     { label: "Events",    path: "/dashboard#events" },
+    { label: "Campus Map", path: "/campus-map" }, // FR-01
   ],
 };
 

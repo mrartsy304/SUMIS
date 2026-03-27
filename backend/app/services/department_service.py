@@ -37,6 +37,19 @@ def search_departments_by_name(keyword: str) -> List[Department]:
     )
 
 
+def search_departments_by_name_only(keyword: str) -> List[Department]:
+    """Case-insensitive partial search on department name only."""
+    if not keyword:
+        return []
+
+    pattern = f"%{keyword.strip()}%"
+    return (
+        Department.query.filter(Department.name.ilike(pattern))
+        .order_by(Department.name.asc())
+        .all()
+    )
+
+
 def update_department(department_id: int, data: Dict[str, Any]) -> Optional[Department]:
     """
     Update whitelisted fields on a Department and persist the change.

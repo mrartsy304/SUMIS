@@ -15,6 +15,8 @@ class Department(db.Model):
     id                = db.Column(db.Integer,     primary_key=True)
     name              = db.Column(db.String(100), nullable=False, unique=True)
     building_location = db.Column(db.String(150))
+    building_lat      = db.Column(db.Float)
+    building_lng      = db.Column(db.Float)
     contact_email     = db.Column(db.String(120))
     contact_phone     = db.Column(db.String(50))
     description       = db.Column(db.Text)
@@ -42,6 +44,8 @@ class Department(db.Model):
             "id":                self.id,
             "name":              self.name,
             "building_location": self.building_location,
+            "building_lat":      self.building_lat,
+            "building_lng":      self.building_lng,
             "contact_email":     self.contact_email,
             "contact_phone":     self.contact_phone,
             "description":       self.description,

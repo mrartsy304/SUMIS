@@ -98,6 +98,13 @@ export const departmentAPI = {
   update:  (id, data) => api.put(`/departments/${id}`, data),
 };
 
+// LOCATION — FR-01: Campus location query processing
+// Returns: { id, name, building_location, building_lat, building_lng }
+export const locationAPI = {
+  search:     (query) => api.get("/location/search", { params: { q: query } }),
+  department: (id)    => api.get(`/location/department/${id}`),
+};
+
 // REPORTING
 export const reportingAPI = {
   getSummary: ()     => api.get("/reporting/summary"),
