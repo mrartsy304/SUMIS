@@ -4,6 +4,16 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 
 from app.models import db
+from app.models.user import User
+from app.models.service_request import ServiceRequest
+from app.models.complaint import Complaint
+from app.models.complaint_category import ComplaintCategory
+from app.models.appointment import Appointment
+from app.models.event import Event
+from app.models.event_registration import EventRegistration
+from app.models.notification import Notification
+from app.models.announcement import Announcement
+from app.models.request_status_history import RequestStatusHistory
 from app.routes.departments import departments_bp
 from app.routes.staff import staff_bp          # FR-03
 
