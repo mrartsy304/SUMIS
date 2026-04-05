@@ -5,8 +5,6 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 
 from app.models import db
-from app.routes.departments import departments_bp
-from app.routes.procedures import procedures_bp
 
 # ── Model imports (order matters — parents before children) ───────────────────
 from app.models.user import User
@@ -20,6 +18,11 @@ from app.models.event import Event
 from app.models.event_registration import EventRegistration
 from app.models.notification import Notification
 from app.models.announcement import Announcement
+
+# ── Blueprint imports ─────────────────────────────────────────────────────────
+from app.routes.departments import departments_bp
+from app.routes.procedures import procedures_bp
+from app.routes.requests import requests_bp      # FR-05 — Qadir
 
 load_dotenv()
 
@@ -51,12 +54,14 @@ def create_app() -> Flask:
 
     # ── CORS ──────────────────────────────────────────────────────────────────
     CORS(app, resources={r"/api/*": {
-    "origins": "*",
-    "supports_credentials": False,
-}})
+        "origins": "*",
+        "supports_credentials": False,
+    }})
+
     # ── Register blueprints ───────────────────────────────────────────────────
-    app.register_blueprint(departments_bp)
-    app.register_blueprint(procedures_bp)
+    app.register_blueprint(departments_bp)   # FR-02 — Ali
+    app.register_blueprint(procedures_bp)    # FR-04 — Ali
+    app.register_blueprint(requests_bp)      # FR-05 — Qadir
 
     # ── Serve React SPA ───────────────────────────────────────────────────────
     @app.route("/", defaults={"path": ""})
@@ -72,43 +77,46 @@ def create_app() -> Flask:
 
         # Seed departments if empty
         if Department.query.count() == 0:
-            db.session.add_all(
-                [
-                    Department(
-                        name="Computer Science",
-                        building_location="Block A, Room 101",
-                        contact_email="cs@sumis.edu",
-                        contact_phone="+92 300-1111111",
-                        description="Software development and computing.",
-                        services="Labs, Programming Help, Research Support",
-                    ),
-                    Department(
-                        name="Software Engineering",
-                        building_location="Block B, Room 201",
-                        contact_email="se@sumis.edu",
-                        contact_phone="+92 300-2222222",
-                        description="Software design and development lifecycle.",
-                        services="Project Guidance, Labs, Industry Training",
-                    ),
-                    Department(
-                        name="Artificial Intelligence",
-                        building_location="Block C, Room 301",
-                        contact_email="ai@sumis.edu",
-                        contact_phone="+92 300-3333333",
-                        description="Machine learning, deep learning, AI.",
-                        services="AI Labs, Research, Model Development",
-                    ),
-                    Department(
-                        name="Data Science",
-                        building_location="Block D, Room 401",
-                        contact_email="ds@sumis.edu",
-                        contact_phone="+92 300-4444444",
-                        description="Data analysis and big data technologies.",
-                        services="Data Labs, Analytics Support, Research",
-                    ),
-                ]
-            )
+            db.session.add_all([
+                Department(
+                    name="Computer Science",
+                    building_location="Block A, Room 101",
+                    contact_email="cs@sumis.edu",
+                    contact_phone="+92 300-1111111",
+                    description="Software development and computing.",
+                    services="Labs, Programming Help, Research Support",
+                ),
+                Department(
+                    name="Software Engineering",
+                    building_location="Block B, Room 201",
+                    contact_email="se@sumis.edu",
+                    contact_phone="+92 300-2222222",
+                    description="Software design and development lifecycle.",
+                    services="Project Guidance, Labs, Industry Training",
+                ),
+                Department(
+                    name="Artificial Intelligence",
+                    building_location="Block C, Room 301",
+                    contact_email="ai@sumis.edu",
+                    contact_phone="+92 300-3333333",
+                    description="Machine learning, deep learning, AI.",
+                    services="AI Labs, Research, Model Development",
+                ),
+                Department(
+                    name="Data Science",
+                    building_location="Block D, Room 401",
+                    contact_email="ds@sumis.edu",
+                    contact_phone="+92 300-4444444",
+                    description="Data analysis and big data technologies.",
+                    services="Data Labs, Analytics Support, Research",
+                ),
+            ])
             db.session.commit()
             print("✅ Departments seeded")
+
+        # Seed complaint categories if empty — needed for FR-05 dropdown
+        if ComplaintCategory.query.count() == 0:
+            from app.services.seed_categories import seed_categories
+            seed_categories()
 
     return app

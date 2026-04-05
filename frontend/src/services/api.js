@@ -1,26 +1,10 @@
 import axios from "axios";
 
-// In production: Flask serves the React build from the same origin, so a
-// relative "/api" base works perfectly.
-//
-// In development: React runs on port 3000 and Flask on port 5000.
-// The "proxy" field in package.json forwards all /api/* requests from
-// the React dev server to Flask so this relative URL works in both modes.
-//
-// If you have NOT added the proxy to package.json yet, set this env var
-// in a .env file in your React project root:
-//   REACT_APP_API_URL=http://127.0.0.1:5000/api
 const BASE_URL = process.env.REACT_APP_API_URL || "/api";
 
 const api = axios.create({
   baseURL: BASE_URL,
   headers: { "Content-Type": "application/json" },
-  // FIX: withCredentials:true + CORS origins:"*" is a browser security
-  // violation — the browser blocks the response. Keep withCredentials true
-  // only if your backend explicitly allows it (supports_credentials=True
-  // AND a specific origin list, not "*"). The Flask CORS config has been
-  // updated to match this. If you are still seeing CORS errors in the
-  // browser console, temporarily set this to false to isolate the issue.
   withCredentials: false,
 });
 
@@ -48,23 +32,25 @@ export const authAPI = {
   me:     ()            => api.get("/auth/me"),
 };
 
-// SERVICE REQUESTS — fields: request_type, description, status, student_id, department_id, created_at
+// SERVICE REQUESTS — FR-05 Qadir
+// fields: request_type, description, status, student_id, department_id, created_at
 export const serviceRequestAPI = {
-  getAll:           ()         => api.get("/service_requests"),
-  getById:          (id)       => api.get(`/service_requests/${id}`),
-  create:           (data)     => api.post("/service_requests", data),
-  update:           (id, data) => api.put(`/service_requests/${id}`, data),
-  delete:           (id)       => api.delete(`/service_requests/${id}`),
-  getStatusHistory: (id)       => api.get(`/service_requests/${id}/history`),
+  getAll:          ()              => api.get("/requests"),
+  getById:         (id)            => api.get(`/requests/${id}`),
+  getByStudent:    (studentId)     => api.get(`/requests/user/${studentId}`),
+  create:          (data)          => api.post("/requests", data),
+  // POST body: { request_type, description, department_id, student_id }
+  getDepartments:  ()              => api.get("/requests/departments"),
+  getCategories:   ()              => api.get("/requests/categories"),
 };
 
 // COMPLAINTS — fields: description, priority, status, category_id, department_id, user_id
 export const complaintsAPI = {
-  getAll:       ()         => api.get("/complaints"),
-  getById:      (id)       => api.get(`/complaints/${id}`),
-  create:       (data)     => api.post("/complaints", data),
-  update:       (id, data) => api.put(`/complaints/${id}`, data),
-  getCategories:()         => api.get("/complaints/categories"),
+  getAll:        ()         => api.get("/complaints"),
+  getById:       (id)       => api.get(`/complaints/${id}`),
+  create:        (data)     => api.post("/complaints", data),
+  update:        (id, data) => api.put(`/complaints/${id}`, data),
+  getCategories: ()         => api.get("/complaints/categories"),
 };
 
 // COORDINATION — Appointment: { student_id, faculty_id, appointment_time, status }
@@ -79,9 +65,9 @@ export const coordinationAPI = {
 
 // ANNOUNCEMENTS — fields: title, message, created_by, created_at
 export const infoAPI = {
-  getAnnouncements:  ()     => api.get("/info_navigation/announcements"),
-  getAnnouncement:   (id)   => api.get(`/info_navigation/announcements/${id}`),
-  createAnnouncement:(data) => api.post("/info_navigation/announcements", data),
+  getAnnouncements:   ()     => api.get("/info_navigation/announcements"),
+  getAnnouncement:    (id)   => api.get(`/info_navigation/announcements/${id}`),
+  createAnnouncement: (data) => api.post("/info_navigation/announcements", data),
 };
 
 // NOTIFICATIONS — fields: user_id, message, is_read, created_at
@@ -90,12 +76,21 @@ export const communicationAPI = {
   markRead:         (id) => api.patch(`/communication/notifications/${id}/read`),
 };
 
-// DEPARTMENTS — fields: name, building_location, contact_email, contact_phone, description, services
+// DEPARTMENTS — FR-02 Ali
+// fields: name, building_location, contact_email, contact_phone, description, services
 export const departmentAPI = {
   getAll:  ()         => api.get("/departments"),
   getById: (id)       => api.get(`/departments/${id}`),
   search:  (query)    => api.get("/departments/search", { params: { q: query } }),
   update:  (id, data) => api.put(`/departments/${id}`, data),
+};
+
+// STAFF — FR-03 Qadir
+// fields: id, name, email, role, department, office_location
+export const staffAPI = {
+  getAll:  ()              => api.get("/staff/all"),
+  search:  (q, role = "") => api.get("/staff/search", { params: { q, role } }),
+  getById: (id)            => api.get(`/staff/${id}`),
 };
 
 // REPORTING
