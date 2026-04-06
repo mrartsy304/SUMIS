@@ -56,7 +56,7 @@ export default function App() {
                 <AdminPortal />
               </ProtectedRoute>
             }
-          />
+          />                                        {/* ← this was missing */}
 
           {/* FR-02 — Ali: Department Information Page */}
           <Route
