@@ -3,13 +3,14 @@ import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = {
   student: [
-    { label: "Dashboard",        path: "/dashboard/student" },
+    { label: "Dashboard",      path: "/dashboard/student" },
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
     { label: "Complaints",       path: "/dashboard/student#complaints" },
     { label: "Events",           path: "/dashboard/student#events" },
     { label: "Departments",      path: "/departments" },       // FR-02 — Ali
     { label: "Submit Request",   path: "/submit-request" },   // FR-05 — Qadir
     { label: "Procedures",       path: "/procedures" },       // FR-04 — Ali
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   faculty: [
     { label: "Dashboard",     path: "/dashboard/faculty" },
@@ -17,6 +18,7 @@ const NAV_LINKS = {
     { label: "Announcements", path: "/dashboard/faculty#announcements" },
     { label: "Departments",   path: "/departments" },          // FR-02 — Ali
     { label: "Procedures",    path: "/procedures" },           // FR-04 — Ali
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   admin: [
     { label: "Dashboard",       path: "/dashboard/admin" },
@@ -24,15 +26,18 @@ const NAV_LINKS = {
     { label: "Reports",         path: "/dashboard/admin#reports" },
     { label: "Departments",     path: "/departments" },        // FR-02 — Ali
     { label: "Submit Request",  path: "/submit-request" },    // FR-05 — Qadir
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   staff: [
     { label: "Dashboard",   path: "/dashboard" },
     { label: "Departments", path: "/departments" },            // FR-02 — Ali
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   event_coordinator: [
     { label: "Dashboard",   path: "/dashboard" },
     { label: "Events",      path: "/dashboard#events" },
     { label: "Departments", path: "/departments" },            // FR-02 — Ali
+    { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
 };
 
@@ -62,13 +67,11 @@ export default function Navbar() {
   return (
     <nav style={styles.nav}>
       <div style={styles.inner}>
-        {/* Brand */}
         <div style={styles.brand} onClick={() => navigate("/dashboard")} role="button">
           <span style={styles.brandIcon}>◈</span>
           <span style={styles.brandName}>SUMIS</span>
         </div>
 
-        {/* Links */}
         <div style={styles.links}>
           {links.map((l) => {
             const active = location.pathname === l.path.split("#")[0];
@@ -88,15 +91,12 @@ export default function Navbar() {
           })}
         </div>
 
-        {/* User pill */}
         <div style={styles.userArea}>
           <div style={{ ...styles.roleBadge, borderColor: roleColor, color: roleColor }}>
             {user.role.replace("_", " ")}
           </div>
           <span style={styles.userName}>{user.name}</span>
-          <button style={styles.logoutBtn} onClick={handleLogout}>
-            Sign Out
-          </button>
+          <button style={styles.logoutBtn} onClick={handleLogout}>Sign Out</button>
         </div>
       </div>
     </nav>

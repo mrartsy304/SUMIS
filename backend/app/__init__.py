@@ -5,6 +5,19 @@ from flask_login import LoginManager
 from dotenv import load_dotenv
 
 from app.models import db
+from app.models.user import User
+from app.models.service_request import ServiceRequest
+from app.models.complaint import Complaint
+from app.models.complaint_category import ComplaintCategory
+from app.models.appointment import Appointment
+from app.models.event import Event
+from app.models.event_registration import EventRegistration
+from app.models.notification import Notification
+from app.models.announcement import Announcement
+from app.models.request_status_history import RequestStatusHistory
+from app.routes.departments import departments_bp
+from app.routes.staff import staff_bp          # FR-03
+from app.routes.procedures import procedures_bp
 
 # ── Model imports (order matters — parents before children) ───────────────────
 from app.models.user import User
@@ -31,7 +44,12 @@ def create_app() -> Flask:
     base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     react_build_dir = os.path.join(base_dir, "frontend", "build")
 
-    app = Flask(__name__, static_folder=react_build_dir, static_url_path="/")
+    app = Flask(
+        __name__,
+        static_folder=react_build_dir,
+        static_url_path="/",
+    )
+
     app.url_map.strict_slashes = False
 
     db_url = os.getenv("DATABASE_URL", "")
@@ -45,23 +63,28 @@ def create_app() -> Flask:
     # ── Initialize extensions ─────────────────────────────────────────────────
     db.init_app(app)
 
+    CORS(
+        app,
+        resources={r"/api/*": {
+            "origins": [
+                "http://localhost:3000",
+                "http://localhost:5000",
+                "http://127.0.0.1:5000",
+            ],
+            "supports_credentials": True,
+        }},
+    )
+
+    # ── Register Blueprints ───────────────────────────────────
+    app.register_blueprint(departments_bp)   # FR-02 — Ali
+    app.register_blueprint(staff_bp)         # FR-03 — Qadir
+    app.register_blueprint(requests_bp)      # FR-05 — Qadir
     login_manager = LoginManager()
     login_manager.init_app(app)
 
     @login_manager.user_loader
     def load_user(user_id):
         return User.query.get(int(user_id))
-
-    # ── CORS ──────────────────────────────────────────────────────────────────
-    CORS(app, resources={r"/api/*": {
-        "origins": "*",
-        "supports_credentials": False,
-    }})
-
-    # ── Register blueprints ───────────────────────────────────────────────────
-    app.register_blueprint(departments_bp)   # FR-02 — Ali
-    app.register_blueprint(procedures_bp)    # FR-04 — Ali
-    app.register_blueprint(requests_bp)      # FR-05 — Qadir
 
     # ── Serve React SPA ───────────────────────────────────────────────────────
     @app.route("/", defaults={"path": ""})

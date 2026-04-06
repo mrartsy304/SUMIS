@@ -56,11 +56,11 @@ export const complaintsAPI = {
 // COORDINATION — Appointment: { student_id, faculty_id, appointment_time, status }
 //                Event:       { title, description, event_date, capacity }
 export const coordinationAPI = {
-  getAppointments:   ()            => api.get("/coordination/appointments"),
-  createAppointment: (data)        => api.post("/coordination/appointments", data),
-  updateAppointment: (id, data)    => api.put(`/coordination/appointments/${id}`, data),
-  getEvents:         ()            => api.get("/coordination/events"),
-  registerEvent:     (eventId)     => api.post(`/coordination/events/${eventId}/register`),
+  getAppointments:   ()         => api.get("/coordination/appointments"),
+  createAppointment: (data)     => api.post("/coordination/appointments", data),
+  updateAppointment: (id, data) => api.put(`/coordination/appointments/${id}`, data),
+  getEvents:         ()         => api.get("/coordination/events"),
+  registerEvent:     (eventId)  => api.post(`/coordination/events/${eventId}/register`),
 };
 
 // ANNOUNCEMENTS — fields: title, message, created_by, created_at
