@@ -7,7 +7,8 @@ import Dashboard      from "./pages/Dashboard";
 import StudentPortal  from "./pages/StudentPortal";
 import FacultyPortal  from "./pages/FacultyPortal";
 import AdminPortal    from "./pages/AdminPortal";
-import Departmentspage from "./pages/Departmentspage";   // FR-02 — Ali
+import Departmentspage from "./pages/Departmentspage";  // FR-02 — Ali
+import SubmitRequest  from "./pages/SubmitRequest";     // FR-05 — Qadir
 import OfficeLocator  from "./pages/OfficeLocator";      // FR-03 — Qadir
 
 export default function App() {
@@ -56,7 +57,27 @@ export default function App() {
                 <AdminPortal />
               </ProtectedRoute>
             }
-          />                                        {/* ← this was missing */}
+          />
+
+          {/* FR-02 — Ali: Department Information Page */}
+          <Route
+            path="/departments"
+            element={
+              <ProtectedRoute>
+                <Departmentspage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* FR-05 — Qadir: Service Request Submission */}
+          <Route
+            path="/submit-request"
+            element={
+              <ProtectedRoute roles={["student", "admin"]}>
+                <SubmitRequest />
+              </ProtectedRoute>
+            }
+          />
 
           {/* FR-02 — Ali: Department Information Page */}
           <Route

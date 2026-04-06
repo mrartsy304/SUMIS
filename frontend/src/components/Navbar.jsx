@@ -7,33 +7,36 @@ const NAV_LINKS = {
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
     { label: "Complaints",       path: "/dashboard/student#complaints" },
     { label: "Events",           path: "/dashboard/student#events" },
-    { label: "Departments",      path: "/dashboard/student#departments" },
-    { label: "Procedures",       path: "/procedures" },   // ← FR-04 added
+    { label: "Departments",      path: "/departments" },       // FR-02 — Ali
+    { label: "Submit Request",   path: "/submit-request" },   // FR-05 — Qadir
+    { label: "Procedures",       path: "/procedures" },       // FR-04 — Ali
     { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   faculty: [
-    { label: "Dashboard",      path: "/dashboard/faculty" },
-    { label: "Appointments",   path: "/dashboard/faculty#appointments" },
-    { label: "Announcements",  path: "/dashboard/faculty#announcements" },
-    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Dashboard",     path: "/dashboard/faculty" },
+    { label: "Appointments",  path: "/dashboard/faculty#appointments" },
+    { label: "Announcements", path: "/dashboard/faculty#announcements" },
+    { label: "Departments",   path: "/departments" },          // FR-02 — Ali
+    { label: "Procedures",    path: "/procedures" },           // FR-04 — Ali
     { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   admin: [
-    { label: "Dashboard",      path: "/dashboard/admin" },
-    { label: "Users",          path: "/dashboard/admin#users" },
-    { label: "Reports",        path: "/dashboard/admin#reports" },
-    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Dashboard",       path: "/dashboard/admin" },
+    { label: "Users",           path: "/dashboard/admin#users" },
+    { label: "Reports",         path: "/dashboard/admin#reports" },
+    { label: "Departments",     path: "/departments" },        // FR-02 — Ali
+    { label: "Submit Request",  path: "/submit-request" },    // FR-05 — Qadir
     { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   staff: [
-    { label: "Dashboard",      path: "/dashboard" },
-    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Dashboard",   path: "/dashboard" },
+    { label: "Departments", path: "/departments" },            // FR-02 — Ali
     { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
   event_coordinator: [
-    { label: "Dashboard",      path: "/dashboard" },
-    { label: "Events",         path: "/dashboard#events" },
-    { label: "Departments",    path: "/departments" },      // FR-02
+    { label: "Dashboard",   path: "/dashboard" },
+    { label: "Events",      path: "/dashboard#events" },
+    { label: "Departments", path: "/departments" },            // FR-02 — Ali
     { label: "Office Locator", path: "/office-locator" },  // FR-03
   ],
 };
@@ -72,24 +75,17 @@ export default function Navbar() {
         <div style={styles.links}>
           {links.map((l) => {
             const active = location.pathname === l.path.split("#")[0];
-            const isProcedures = l.path === "/procedures";
             return (
               <a
                 key={l.label}
                 href={l.path}
-                style={
-                  active
-                    ? { ...styles.link, ...styles.linkActive }
-                    : isProcedures
-                    ? { ...styles.link, ...styles.linkProcedures }
-                    : styles.link
-                }
+                style={active ? { ...styles.link, ...styles.linkActive } : styles.link}
                 onClick={(e) => {
                   e.preventDefault();
                   navigate(l.path.split("#")[0]);
                 }}
               >
-                {isProcedures ? "📋 " + l.label : l.label}
+                {l.label}
               </a>
             );
           })}
@@ -108,20 +104,51 @@ export default function Navbar() {
 }
 
 const styles = {
-  nav:        { position: "sticky", top: 0, zIndex: 100, background: "rgba(10,10,15,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(99,102,241,0.12)" },
-  inner:      { maxWidth: 1280, margin: "0 auto", padding: "0 32px", height: 60, display: "flex", alignItems: "center", gap: 32 },
-  brand:      { display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flexShrink: 0 },
-  brandIcon:  { fontSize: 18, color: "#818cf8" },
-  brandName:  { fontSize: 15, fontWeight: "normal", color: "#e2e8f0", letterSpacing: "0.25em", fontFamily: "'Georgia', serif" },
-  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
-  link:       { padding: "6px 12px", borderRadius: 2, fontSize: 12, color: "#64748b", textDecoration: "none", fontFamily: "monospace", letterSpacing: "0.02em" },
-  linkActive: { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
-  linkProcedures: {
-    color: "#818cf8",
-    border: "1px solid rgba(99,102,241,0.3)",
-    borderRadius: 4,
+  nav: {
+    position: "sticky",
+    top: 0,
+    zIndex: 100,
+    background: "rgba(10,10,15,0.92)",
+    backdropFilter: "blur(12px)",
+    borderBottom: "1px solid rgba(99,102,241,0.12)",
   },
-  userArea: { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
+  inner: {
+    maxWidth: 1280,
+    margin: "0 auto",
+    padding: "0 32px",
+    height: 60,
+    display: "flex",
+    alignItems: "center",
+    gap: 32,
+  },
+  brand: {
+    display: "flex",
+    alignItems: "center",
+    gap: 10,
+    cursor: "pointer",
+    flexShrink: 0,
+  },
+  brandIcon: { fontSize: 18, color: "#818cf8" },
+  brandName: {
+    fontSize: 15,
+    fontWeight: "normal",
+    color: "#e2e8f0",
+    letterSpacing: "0.25em",
+    fontFamily: "'Georgia', serif",
+  },
+  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
+  link: {
+    padding: "6px 12px",
+    borderRadius: 2,
+    fontSize: 12,
+    color: "#64748b",
+    textDecoration: "none",
+    transition: "color 0.15s",
+    fontFamily: "monospace",
+    letterSpacing: "0.02em",
+  },
+  linkActive:  { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
+  userArea:    { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
   roleBadge: {
     fontSize: 10,
     padding: "3px 10px",
@@ -131,7 +158,7 @@ const styles = {
     letterSpacing: "0.12em",
     fontFamily: "monospace",
   },
-  userName: { fontSize: 13, color: "#94a3b8" },
+  userName:    { fontSize: 13, color: "#94a3b8" },
   logoutBtn: {
     background: "transparent",
     border: "1px solid rgba(239,68,68,0.25)",

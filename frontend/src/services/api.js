@@ -32,14 +32,16 @@ export const authAPI = {
   me:     ()            => api.get("/auth/me"),
 };
 
-// SERVICE REQUESTS — fields: request_type, description, status, student_id, department_id, created_at
+// SERVICE REQUESTS — FR-05 Qadir
+// fields: request_type, description, status, student_id, department_id, created_at
 export const serviceRequestAPI = {
-  getAll:           ()         => api.get("/service_requests"),
-  getById:          (id)       => api.get(`/service_requests/${id}`),
-  create:           (data)     => api.post("/service_requests", data),
-  update:           (id, data) => api.put(`/service_requests/${id}`, data),
-  delete:           (id)       => api.delete(`/service_requests/${id}`),
-  getStatusHistory: (id)       => api.get(`/service_requests/${id}/history`),
+  getAll:          ()              => api.get("/requests"),
+  getById:         (id)            => api.get(`/requests/${id}`),
+  getByStudent:    (studentId)     => api.get(`/requests/user/${studentId}`),
+  create:          (data)          => api.post("/requests", data),
+  // POST body: { request_type, description, department_id, student_id }
+  getDepartments:  ()              => api.get("/requests/departments"),
+  getCategories:   ()              => api.get("/requests/categories"),
 };
 
 // COMPLAINTS — fields: description, priority, status, category_id, department_id, user_id
