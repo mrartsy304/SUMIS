@@ -44,9 +44,9 @@ export const serviceRequestAPI = {
 
 // STATUS TRACKING — FR-07 Ali
 export const statusTrackingAPI = {
-  getByStudent:  (studentId)       => api.get(`/requests/user/${studentId}`),
-  getStatus:     (requestId)       => api.get(`/requests/${requestId}/status`),
-  updateStatus:  (requestId, data) => api.patch(`/requests/${requestId}/status`, data),
+  getByStudent: (studentId)       => api.get(`/requests/user/${studentId}`),
+  getStatus:    (requestId)       => api.get(`/requests/${requestId}/status`),
+  updateStatus: (requestId, data) => api.patch(`/requests/${requestId}/status`, data),
 };
 
 // ROUTING — FR-06 Qadir
@@ -59,17 +59,38 @@ export const routingAPI = {
 };
 
 // DECISION — FR-08 Qadir
-// PUT /requests/<id>/decision — body: { decision, remarks, decided_by }
-// decision: "approved" | "rejected"
-// remarks required when decision === "rejected"
 export const decisionAPI = {
-  getPendingReview:  ()              => api.get("/requests/pending-review"),
-  getByDepartment:   (deptId)        => api.get(`/requests/by-department/${deptId}`),
-  processDecision:   (id, data)      => api.put(`/requests/${id}/decision`, data),
-  // data: { decision: "approved"|"rejected", remarks: string, decided_by: int }
+  getPendingReview: ()         => api.get("/requests/pending-review"),
+  getByDepartment:  (deptId)   => api.get(`/requests/by-department/${deptId}`),
+  processDecision:  (id, data) => api.put(`/requests/${id}/decision`, data),
 };
 
-// COMPLAINTS — fields: description, priority, status, category_id, department_id, user_id
+// COMPLETION — FR-09 Usman
+export const completionAPI = {
+  getApproved:     ()         => api.get("/requests/approved"),
+  getCompleted:    ()         => api.get("/requests/completed"),
+  completeRequest: (id, data) => api.put(`/requests/${id}/complete`, data),
+};
+
+// APPOINTMENTS — FR-14 Ali
+// POST /appointments        — student books a new appointment
+// GET  /appointments        — filtered list (?student_id or ?faculty_id)
+// GET  /appointments/faculty — all users with role=faculty (for dropdown)
+// GET  /appointments/<id>   — single appointment details
+// PUT  /appointments/<id>/respond — faculty approves or rejects
+// DELETE /appointments/<id>/cancel — student cancels a pending request
+export const appointmentAPI = {
+  getFaculty:   ()           => api.get("/appointments/faculty"),
+  create:       (data)       => api.post("/appointments", data),
+  getByStudent: (studentId)  => api.get("/appointments", { params: { student_id: studentId } }),
+  getByFaculty: (facultyId)  => api.get("/appointments", { params: { faculty_id: facultyId } }),
+  getAll:       ()           => api.get("/appointments"),
+  getById:      (id)         => api.get(`/appointments/${id}`),
+  respond:      (id, data)   => api.put(`/appointments/${id}/respond`, data),
+  cancel:       (id)         => api.delete(`/appointments/${id}/cancel`),
+};
+
+// COMPLAINTS
 export const complaintsAPI = {
   getAll:        ()         => api.get("/complaints"),
   getById:       (id)       => api.get(`/complaints/${id}`),

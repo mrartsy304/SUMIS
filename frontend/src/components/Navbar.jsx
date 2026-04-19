@@ -3,42 +3,46 @@ import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = {
   student: [
-    { label: "Dashboard",      path: "/dashboard/student" },
-    { label: "Submit Request", path: "/submit-request" },    // FR-05
-    { label: "Track Requests", path: "/track-requests" },    // FR-07
-    { label: "Departments",    path: "/departments" },        // FR-02
-    { label: "Procedures",     path: "/procedures" },         // FR-04
-    { label: "Office Locator", path: "/office-locator" },    // FR-03
+    { label: "Dashboard",        path: "/dashboard/student" },
+    { label: "Submit Request",   path: "/submit-request" },      // FR-05
+    { label: "Track Requests",   path: "/track-requests" },      // FR-07
+    { label: "Book Appointment", path: "/book-appointment" },    // FR-14
+    { label: "Departments",      path: "/departments" },          // FR-02
+    { label: "Procedures",       path: "/procedures" },           // FR-04
+    { label: "Office Locator",   path: "/office-locator" },      // FR-03
   ],
   faculty: [
     { label: "Dashboard",      path: "/dashboard/faculty" },
-    { label: "Appointments",   path: "/dashboard/faculty#appointments" },
+    { label: "Appointments",   path: "/faculty-appointments" },  // FR-14 Part 2
     { label: "Announcements",  path: "/dashboard/faculty#announcements" },
-    { label: "Departments",    path: "/departments" },        // FR-02
-    { label: "Procedures",     path: "/procedures" },         // FR-04
-    { label: "Office Locator", path: "/office-locator" },    // FR-03
+    { label: "Departments",    path: "/departments" },             // FR-02
+    { label: "Procedures",     path: "/procedures" },              // FR-04
+    { label: "Office Locator", path: "/office-locator" },         // FR-03
   ],
   admin: [
     { label: "Dashboard",       path: "/dashboard/admin" },
-    { label: "Submit Request",  path: "/submit-request" },   // FR-05
-    { label: "Track Requests",  path: "/track-requests" },   // FR-07
-    { label: "Request Routing", path: "/request-routing" },  // FR-06
-    { label: "Staff Review",    path: "/staff-review" },     // FR-08
-    { label: "Departments",     path: "/departments" },       // FR-02
-    { label: "Office Locator",  path: "/office-locator" },   // FR-03
+    { label: "Submit Request",  path: "/submit-request" },        // FR-05
+    { label: "Track Requests",  path: "/track-requests" },        // FR-07
+    { label: "Book Appointment",path: "/book-appointment" },      // FR-14
+    { label: "Request Routing", path: "/request-routing" },       // FR-06
+    { label: "Staff Review",    path: "/staff-review" },          // FR-08
+    { label: "Completion",      path: "/service-completion" },    // FR-09
+    { label: "Departments",     path: "/departments" },            // FR-02
+    { label: "Office Locator",  path: "/office-locator" },        // FR-03
   ],
   staff: [
     { label: "Dashboard",       path: "/dashboard" },
-    { label: "Staff Review",    path: "/staff-review" },     // FR-08
-    { label: "Request Routing", path: "/request-routing" },  // FR-06
-    { label: "Departments",     path: "/departments" },       // FR-02
-    { label: "Office Locator",  path: "/office-locator" },   // FR-03
+    { label: "Staff Review",    path: "/staff-review" },          // FR-08
+    { label: "Completion",      path: "/service-completion" },    // FR-09
+    { label: "Request Routing", path: "/request-routing" },       // FR-06
+    { label: "Departments",     path: "/departments" },            // FR-02
+    { label: "Office Locator",  path: "/office-locator" },        // FR-03
   ],
   event_coordinator: [
     { label: "Dashboard",      path: "/dashboard" },
     { label: "Events",         path: "/dashboard#events" },
-    { label: "Departments",    path: "/departments" },        // FR-02
-    { label: "Office Locator", path: "/office-locator" },    // FR-03
+    { label: "Departments",    path: "/departments" },             // FR-02
+    { label: "Office Locator", path: "/office-locator" },         // FR-03
   ],
 };
 
@@ -57,7 +61,7 @@ export default function Navbar() {
 
   if (!user) return null;
 
-  const links = NAV_LINKS[user.role] || NAV_LINKS.staff;
+  const links     = NAV_LINKS[user.role] || NAV_LINKS.staff;
   const roleColor = ROLE_COLORS[user.role] || "#6366f1";
 
   const handleLogout = async () => {
