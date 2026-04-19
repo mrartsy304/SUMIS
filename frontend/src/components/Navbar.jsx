@@ -5,39 +5,40 @@ const NAV_LINKS = {
   student: [
     { label: "Dashboard",      path: "/dashboard/student" },
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
-    { label: "Complaints",       path: "/dashboard/student#complaints" },
-    { label: "Events",           path: "/dashboard/student#events" },
-    { label: "Departments",      path: "/departments" },       // FR-02 — Ali
-    { label: "Submit Request",   path: "/submit-request" },   // FR-05 — Qadir
-    { label: "Procedures",       path: "/procedures" },       // FR-04 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Complaints",     path: "/dashboard/student#complaints" },
+    { label: "Events",         path: "/dashboard/student#events" },
+    { label: "Departments",    path: "/departments" },       // FR-02 — Ali
+    { label: "Submit Request", path: "/submit-request" },   // FR-05 — Qadir
+    { label: "Procedures",     path: "/procedures" },       // FR-04 — Ali
+    { label: "Office Locator", path: "/office-locator" },  // FR-03 — Qadir
   ],
   faculty: [
     { label: "Dashboard",     path: "/dashboard/faculty" },
     { label: "Appointments",  path: "/dashboard/faculty#appointments" },
     { label: "Announcements", path: "/dashboard/faculty#announcements" },
-    { label: "Departments",   path: "/departments" },          // FR-02 — Ali
-    { label: "Procedures",    path: "/procedures" },           // FR-04 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Departments",   path: "/departments" },        // FR-02 — Ali
+    { label: "Procedures",    path: "/procedures" },         // FR-04 — Ali
+    { label: "Office Locator", path: "/office-locator" },   // FR-03 — Qadir
   ],
   admin: [
-    { label: "Dashboard",       path: "/dashboard/admin" },
-    { label: "Users",           path: "/dashboard/admin#users" },
-    { label: "Reports",         path: "/dashboard/admin#reports" },
-    { label: "Departments",     path: "/departments" },        // FR-02 — Ali
-    { label: "Submit Request",  path: "/submit-request" },    // FR-05 — Qadir
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",        path: "/dashboard/admin" },
+    { label: "Users",            path: "/dashboard/admin#users" },
+    { label: "Departments",      path: "/departments" },         // FR-02 — Ali
+    { label: "Submit Request",   path: "/submit-request" },     // FR-05 — Qadir
+    { label: "Request Routing",  path: "/request-routing" },    // FR-06 — Qadir
+    { label: "Office Locator",   path: "/office-locator" },     // FR-03 — Qadir
   ],
   staff: [
-    { label: "Dashboard",   path: "/dashboard" },
-    { label: "Departments", path: "/departments" },            // FR-02 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",       path: "/dashboard" },
+    { label: "Departments",     path: "/departments" },          // FR-02 — Ali
+    { label: "Request Routing", path: "/request-routing" },     // FR-06 — Qadir
+    { label: "Office Locator",  path: "/office-locator" },      // FR-03 — Qadir
   ],
   event_coordinator: [
     { label: "Dashboard",   path: "/dashboard" },
     { label: "Events",      path: "/dashboard#events" },
-    { label: "Departments", path: "/departments" },            // FR-02 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Departments", path: "/departments" },              // FR-02 — Ali
+    { label: "Office Locator", path: "/office-locator" },       // FR-03 — Qadir
   ],
 };
 
@@ -104,70 +105,16 @@ export default function Navbar() {
 }
 
 const styles = {
-  nav: {
-    position: "sticky",
-    top: 0,
-    zIndex: 100,
-    background: "rgba(10,10,15,0.92)",
-    backdropFilter: "blur(12px)",
-    borderBottom: "1px solid rgba(99,102,241,0.12)",
-  },
-  inner: {
-    maxWidth: 1280,
-    margin: "0 auto",
-    padding: "0 32px",
-    height: 60,
-    display: "flex",
-    alignItems: "center",
-    gap: 32,
-  },
-  brand: {
-    display: "flex",
-    alignItems: "center",
-    gap: 10,
-    cursor: "pointer",
-    flexShrink: 0,
-  },
+  nav: { position: "sticky", top: 0, zIndex: 100, background: "rgba(10,10,15,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(99,102,241,0.12)" },
+  inner: { maxWidth: 1280, margin: "0 auto", padding: "0 32px", height: 60, display: "flex", alignItems: "center", gap: 32 },
+  brand: { display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flexShrink: 0 },
   brandIcon: { fontSize: 18, color: "#818cf8" },
-  brandName: {
-    fontSize: 15,
-    fontWeight: "normal",
-    color: "#e2e8f0",
-    letterSpacing: "0.25em",
-    fontFamily: "'Georgia', serif",
-  },
-  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
-  link: {
-    padding: "6px 12px",
-    borderRadius: 2,
-    fontSize: 12,
-    color: "#64748b",
-    textDecoration: "none",
-    transition: "color 0.15s",
-    fontFamily: "monospace",
-    letterSpacing: "0.02em",
-  },
-  linkActive:  { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
-  userArea:    { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
-  roleBadge: {
-    fontSize: 10,
-    padding: "3px 10px",
-    border: "1px solid",
-    borderRadius: 2,
-    textTransform: "uppercase",
-    letterSpacing: "0.12em",
-    fontFamily: "monospace",
-  },
-  userName:    { fontSize: 13, color: "#94a3b8" },
-  logoutBtn: {
-    background: "transparent",
-    border: "1px solid rgba(239,68,68,0.25)",
-    borderRadius: 2,
-    padding: "5px 12px",
-    fontSize: 12,
-    color: "#f87171",
-    cursor: "pointer",
-    fontFamily: "monospace",
-    letterSpacing: "0.05em",
-  },
+  brandName: { fontSize: 15, fontWeight: "normal", color: "#e2e8f0", letterSpacing: "0.25em", fontFamily: "'Georgia', serif" },
+  links: { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
+  link: { padding: "6px 12px", borderRadius: 2, fontSize: 12, color: "#64748b", textDecoration: "none", transition: "color 0.15s", fontFamily: "monospace", letterSpacing: "0.02em" },
+  linkActive: { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
+  userArea: { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
+  roleBadge: { fontSize: 10, padding: "3px 10px", border: "1px solid", borderRadius: 2, textTransform: "uppercase", letterSpacing: "0.12em", fontFamily: "monospace" },
+  userName: { fontSize: 13, color: "#94a3b8" },
+  logoutBtn: { background: "transparent", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 2, padding: "5px 12px", fontSize: 12, color: "#f87171", cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.05em" },
 };
