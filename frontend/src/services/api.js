@@ -32,7 +32,7 @@ export const authAPI = {
   me:     ()            => api.get("/auth/me"),
 };
 
-// SERVICE REQUESTS — FR-05 Qadir
+// SERVICE REQUESTS — FR-05 Usman
 // fields: request_type, description, status, student_id, department_id, created_at
 export const serviceRequestAPI = {
   getAll:         ()          => api.get("/requests"),
@@ -41,6 +41,20 @@ export const serviceRequestAPI = {
   create:         (data)      => api.post("/requests", data),
   getDepartments: ()          => api.get("/requests/departments"),
   getCategories:  ()          => api.get("/requests/categories"),
+};
+
+// STATUS TRACKING — FR-07 Ali
+// Uses: service_request.py, request_status_history.py
+export const statusTrackingAPI = {
+  // GET all requests for a student (with full status history)
+  getByStudent:  (studentId) => api.get(`/requests/user/${studentId}`),
+
+  // GET current status + history for a single request
+  getStatus:     (requestId) => api.get(`/requests/${requestId}/status`),
+
+  // PATCH update request status (admin/staff)
+  // body: { status: "in_progress"|"resolved"|"rejected", remarks?: string }
+  updateStatus:  (requestId, data) => api.patch(`/requests/${requestId}/status`, data),
 };
 
 // ROUTING — FR-06 Qadir

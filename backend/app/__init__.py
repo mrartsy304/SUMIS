@@ -23,8 +23,9 @@ from app.models.announcement import Announcement
 from app.routes.departments import departments_bp
 from app.routes.staff import staff_bp          # FR-03 — Qadir
 from app.routes.procedures import procedures_bp # FR-04 — Ali
-from app.routes.requests import requests_bp    # FR-05 — Qadir
+from app.routes.requests import requests_bp    # FR-05 — Usman
 from app.routes.routing import routing_bp      # FR-06 — Qadir
+from app.routes.status import status_bp        # FR-07 — Ali
 
 load_dotenv()
 
@@ -68,8 +69,9 @@ def create_app() -> Flask:
     app.register_blueprint(departments_bp)  # FR-02 — Ali
     app.register_blueprint(staff_bp)        # FR-03 — Qadir
     app.register_blueprint(procedures_bp)   # FR-04 — Ali
-    app.register_blueprint(requests_bp)     # FR-05 — Qadir
+    app.register_blueprint(requests_bp)     # FR-05 — Usman
     app.register_blueprint(routing_bp)      # FR-06 — Qadir
+    app.register_blueprint(status_bp)       # FR-07 — Ali
 
     # ── Serve React SPA ───────────────────────────────────────────────────────
     @app.route("/", defaults={"path": ""})

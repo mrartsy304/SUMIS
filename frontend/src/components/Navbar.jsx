@@ -8,25 +8,27 @@ const NAV_LINKS = {
     { label: "Complaints",     path: "/dashboard/student#complaints" },
     { label: "Events",         path: "/dashboard/student#events" },
     { label: "Departments",    path: "/departments" },       // FR-02 — Ali
-    { label: "Submit Request", path: "/submit-request" },   // FR-05 — Qadir
+    { label: "Submit Request", path: "/submit-request" },   // FR-05 — Usman
+    { label: "Track Requests", path: "/track-requests" },   // FR-07 — Ali
     { label: "Procedures",     path: "/procedures" },       // FR-04 — Ali
     { label: "Office Locator", path: "/office-locator" },  // FR-03 — Qadir
   ],
   faculty: [
-    { label: "Dashboard",     path: "/dashboard/faculty" },
-    { label: "Appointments",  path: "/dashboard/faculty#appointments" },
-    { label: "Announcements", path: "/dashboard/faculty#announcements" },
-    { label: "Departments",   path: "/departments" },        // FR-02 — Ali
-    { label: "Procedures",    path: "/procedures" },         // FR-04 — Ali
+    { label: "Dashboard",      path: "/dashboard/faculty" },
+    { label: "Appointments",   path: "/dashboard/faculty#appointments" },
+    { label: "Announcements",  path: "/dashboard/faculty#announcements" },
+    { label: "Departments",    path: "/departments" },       // FR-02 — Ali
+    { label: "Procedures",     path: "/procedures" },        // FR-04 — Ali
     { label: "Office Locator", path: "/office-locator" },   // FR-03 — Qadir
   ],
   admin: [
-    { label: "Dashboard",        path: "/dashboard/admin" },
-    { label: "Users",            path: "/dashboard/admin#users" },
-    { label: "Departments",      path: "/departments" },         // FR-02 — Ali
-    { label: "Submit Request",   path: "/submit-request" },     // FR-05 — Qadir
-    { label: "Request Routing",  path: "/request-routing" },    // FR-06 — Qadir
-    { label: "Office Locator",   path: "/office-locator" },     // FR-03 — Qadir
+    { label: "Dashboard",       path: "/dashboard/admin" },
+    { label: "Users",           path: "/dashboard/admin#users" },
+    { label: "Departments",     path: "/departments" },         // FR-02 — Ali
+    { label: "Submit Request",  path: "/submit-request" },     // FR-05 — Usman
+    { label: "Track Requests",  path: "/track-requests" },     // FR-07 — Ali
+    { label: "Request Routing", path: "/request-routing" },    // FR-06 — Qadir
+    { label: "Office Locator",  path: "/office-locator" },     // FR-03 — Qadir
   ],
   staff: [
     { label: "Dashboard",       path: "/dashboard" },
@@ -35,9 +37,9 @@ const NAV_LINKS = {
     { label: "Office Locator",  path: "/office-locator" },      // FR-03 — Qadir
   ],
   event_coordinator: [
-    { label: "Dashboard",   path: "/dashboard" },
-    { label: "Events",      path: "/dashboard#events" },
-    { label: "Departments", path: "/departments" },              // FR-02 — Ali
+    { label: "Dashboard",      path: "/dashboard" },
+    { label: "Events",         path: "/dashboard#events" },
+    { label: "Departments",    path: "/departments" },           // FR-02 — Ali
     { label: "Office Locator", path: "/office-locator" },       // FR-03 — Qadir
   ],
 };
