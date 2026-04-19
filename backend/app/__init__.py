@@ -21,11 +21,13 @@ from app.models.announcement import Announcement
 
 # ── Blueprint imports ─────────────────────────────────────────────────────────
 from app.routes.departments import departments_bp
-from app.routes.staff import staff_bp          # FR-03 — Qadir
-from app.routes.procedures import procedures_bp # FR-04 — Ali
-from app.routes.requests import requests_bp    # FR-05 — Usman
-from app.routes.routing import routing_bp      # FR-06 — Qadir
-from app.routes.status import status_bp        # FR-07 — Ali
+from app.routes.staff       import staff_bp          # FR-03 — Qadir
+from app.routes.procedures  import procedures_bp      # FR-04 — Ali
+from app.routes.requests    import requests_bp        # FR-05 — Usman
+from app.routes.routing     import routing_bp         # FR-06 — Qadir
+from app.routes.status      import status_bp          # FR-07 — Ali
+from app.routes.decision    import decision_bp        # FR-08 — Qadir
+from app.routes.completion  import completion_bp      # FR-09 — Usman
 
 load_dotenv()
 
@@ -72,6 +74,8 @@ def create_app() -> Flask:
     app.register_blueprint(requests_bp)     # FR-05 — Usman
     app.register_blueprint(routing_bp)      # FR-06 — Qadir
     app.register_blueprint(status_bp)       # FR-07 — Ali
+    app.register_blueprint(decision_bp)     # FR-08 — Qadir
+    app.register_blueprint(completion_bp)   # FR-09 — Usman
 
     # ── Serve React SPA ───────────────────────────────────────────────────────
     @app.route("/", defaults={"path": ""})
@@ -85,18 +89,16 @@ def create_app() -> Flask:
     with app.app_context():
         db.create_all()
 
-        # Seed departments if empty
         if Department.query.count() == 0:
             db.session.add_all([
-                Department(name="Computer Science",      building_location="Block A, Room 101", contact_email="cs@sumis.edu",  contact_phone="+92 300-1111111", description="Software development and computing.",          services="Labs, Programming Help, Research Support"),
-                Department(name="Software Engineering",  building_location="Block B, Room 201", contact_email="se@sumis.edu",  contact_phone="+92 300-2222222", description="Software design and development lifecycle.",   services="Project Guidance, Labs, Industry Training"),
+                Department(name="Computer Science",        building_location="Block A, Room 101", contact_email="cs@sumis.edu", contact_phone="+92 300-1111111", description="Software development and computing.",        services="Labs, Programming Help, Research Support"),
+                Department(name="Software Engineering",    building_location="Block B, Room 201", contact_email="se@sumis.edu", contact_phone="+92 300-2222222", description="Software design and development lifecycle.", services="Project Guidance, Labs, Industry Training"),
                 Department(name="Artificial Intelligence", building_location="Block C, Room 301", contact_email="ai@sumis.edu", contact_phone="+92 300-3333333", description="Machine learning, deep learning, AI.",        services="AI Labs, Research, Model Development"),
-                Department(name="Data Science",          building_location="Block D, Room 401", contact_email="ds@sumis.edu",  contact_phone="+92 300-4444444", description="Data analysis and big data technologies.",    services="Data Labs, Analytics Support, Research"),
+                Department(name="Data Science",            building_location="Block D, Room 401", contact_email="ds@sumis.edu", contact_phone="+92 300-4444444", description="Data analysis and big data technologies.",  services="Data Labs, Analytics Support, Research"),
             ])
             db.session.commit()
             print("✅ Departments seeded")
 
-        # Seed complaint categories if empty
         if ComplaintCategory.query.count() == 0:
             from app.services.seed_categories import seed_categories
             seed_categories()
