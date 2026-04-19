@@ -2,16 +2,17 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 
-import Login               from "./pages/Login";
-import Dashboard           from "./pages/Dashboard";
-import StudentPortal       from "./pages/StudentPortal";
-import FacultyPortal       from "./pages/FacultyPortal";
-import AdminPortal         from "./pages/AdminPortal";
-import Departmentspage     from "./pages/Departmentspage";      // FR-02 — Ali
-import OfficeLocator       from "./pages/OfficeLocator";        // FR-03 — Qadir
-import SubmitRequest       from "./pages/SubmitRequest";        // FR-05 — Usman
-import RequestRoutingView  from "./pages/RequestRoutingView";   // FR-06 — Qadir
-import TrackRequests       from "./pages/TrackRequests";        // FR-07 — Ali
+import Login                from "./pages/Login";
+import Dashboard            from "./pages/Dashboard";
+import StudentPortal        from "./pages/StudentPortal";
+import FacultyPortal        from "./pages/FacultyPortal";
+import AdminPortal          from "./pages/AdminPortal";
+import Departmentspage      from "./pages/Departmentspage";       // FR-02 — Ali
+import OfficeLocator        from "./pages/OfficeLocator";         // FR-03 — Qadir
+import SubmitRequest        from "./pages/SubmitRequest";         // FR-05 — Usman
+import RequestRoutingView   from "./pages/RequestRoutingView";    // FR-06 — Qadir
+import TrackRequests        from "./pages/TrackRequests";         // FR-07 — Ali
+import StaffReviewDashboard from "./pages/StaffReviewDashboard";  // FR-08 — Qadir
 
 export default function App() {
   return (
@@ -39,29 +40,34 @@ export default function App() {
             <ProtectedRoute roles={["admin"]}><AdminPortal /></ProtectedRoute>
           } />
 
-          {/* FR-02 — Ali: Department Information Page */}
+          {/* FR-02 — Ali */}
           <Route path="/departments" element={
             <ProtectedRoute><Departmentspage /></ProtectedRoute>
           } />
 
-          {/* FR-03 — Qadir: Faculty & Staff Office Locator */}
+          {/* FR-03 — Qadir */}
           <Route path="/office-locator" element={
             <ProtectedRoute><OfficeLocator /></ProtectedRoute>
           } />
 
-          {/* FR-05 — Usman: Service Request Submission */}
+          {/* FR-05 — Usman */}
           <Route path="/submit-request" element={
             <ProtectedRoute roles={["student", "admin"]}><SubmitRequest /></ProtectedRoute>
           } />
 
-          {/* FR-06 — Qadir: Automated Request Routing (Admin view) */}
+          {/* FR-06 — Qadir */}
           <Route path="/request-routing" element={
             <ProtectedRoute roles={["admin", "staff"]}><RequestRoutingView /></ProtectedRoute>
           } />
 
-          {/* FR-07 — Ali: Service Request Status Tracking */}
+          {/* FR-07 — Ali */}
           <Route path="/track-requests" element={
             <ProtectedRoute roles={["student", "admin"]}><TrackRequests /></ProtectedRoute>
+          } />
+
+          {/* FR-08 — Qadir: Staff Review Dashboard */}
+          <Route path="/staff-review" element={
+            <ProtectedRoute roles={["admin", "staff"]}><StaffReviewDashboard /></ProtectedRoute>
           } />
 
           {/* Catch-all */}

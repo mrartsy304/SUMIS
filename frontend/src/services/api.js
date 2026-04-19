@@ -33,7 +33,6 @@ export const authAPI = {
 };
 
 // SERVICE REQUESTS — FR-05 Usman
-// fields: request_type, description, status, student_id, department_id, created_at
 export const serviceRequestAPI = {
   getAll:         ()          => api.get("/requests"),
   getById:        (id)        => api.get(`/requests/${id}`),
@@ -44,27 +43,30 @@ export const serviceRequestAPI = {
 };
 
 // STATUS TRACKING — FR-07 Ali
-// Uses: service_request.py, request_status_history.py
 export const statusTrackingAPI = {
-  // GET all requests for a student (with full status history)
-  getByStudent:  (studentId) => api.get(`/requests/user/${studentId}`),
-
-  // GET current status + history for a single request
-  getStatus:     (requestId) => api.get(`/requests/${requestId}/status`),
-
-  // PATCH update request status (admin/staff)
-  // body: { status: "in_progress"|"resolved"|"rejected", remarks?: string }
+  getByStudent:  (studentId)       => api.get(`/requests/user/${studentId}`),
+  getStatus:     (requestId)       => api.get(`/requests/${requestId}/status`),
   updateStatus:  (requestId, data) => api.patch(`/requests/${requestId}/status`, data),
 };
 
 // ROUTING — FR-06 Qadir
-// Uses: complaint.py, department.py, service_request.py
 export const routingAPI = {
-  routeRequest:   (id)  => api.post(`/routing/route-request/${id}`),
-  routeComplaint: (id)  => api.post(`/routing/route-complaint/${id}`),
-  routeAll:       ()    => api.post("/routing/route-all"),
-  getStats:       ()    => api.get("/routing/stats"),
-  getPending:     ()    => api.get("/routing/pending"),
+  routeRequest:   (id) => api.post(`/routing/route-request/${id}`),
+  routeComplaint: (id) => api.post(`/routing/route-complaint/${id}`),
+  routeAll:       ()   => api.post("/routing/route-all"),
+  getStats:       ()   => api.get("/routing/stats"),
+  getPending:     ()   => api.get("/routing/pending"),
+};
+
+// DECISION — FR-08 Qadir
+// PUT /requests/<id>/decision — body: { decision, remarks, decided_by }
+// decision: "approved" | "rejected"
+// remarks required when decision === "rejected"
+export const decisionAPI = {
+  getPendingReview:  ()              => api.get("/requests/pending-review"),
+  getByDepartment:   (deptId)        => api.get(`/requests/by-department/${deptId}`),
+  processDecision:   (id, data)      => api.put(`/requests/${id}/decision`, data),
+  // data: { decision: "approved"|"rejected", remarks: string, decided_by: int }
 };
 
 // COMPLAINTS — fields: description, priority, status, category_id, department_id, user_id
@@ -76,8 +78,7 @@ export const complaintsAPI = {
   getCategories: ()         => api.get("/complaints/categories"),
 };
 
-// COORDINATION — Appointment: { student_id, faculty_id, appointment_time, status }
-//                Event:       { title, description, event_date, capacity }
+// COORDINATION
 export const coordinationAPI = {
   getAppointments:   ()         => api.get("/coordination/appointments"),
   createAppointment: (data)     => api.post("/coordination/appointments", data),
@@ -86,21 +87,20 @@ export const coordinationAPI = {
   registerEvent:     (eventId)  => api.post(`/coordination/events/${eventId}/register`),
 };
 
-// ANNOUNCEMENTS — fields: title, message, created_by, created_at
+// ANNOUNCEMENTS
 export const infoAPI = {
   getAnnouncements:   ()     => api.get("/info_navigation/announcements"),
   getAnnouncement:    (id)   => api.get(`/info_navigation/announcements/${id}`),
   createAnnouncement: (data) => api.post("/info_navigation/announcements", data),
 };
 
-// NOTIFICATIONS — fields: user_id, message, is_read, created_at
+// NOTIFICATIONS
 export const communicationAPI = {
   getNotifications: ()   => api.get("/communication/notifications"),
   markRead:         (id) => api.patch(`/communication/notifications/${id}/read`),
 };
 
 // DEPARTMENTS — FR-02 Ali
-// fields: name, building_location, contact_email, contact_phone, description, services
 export const departmentAPI = {
   getAll:  ()         => api.get("/departments"),
   getById: (id)       => api.get(`/departments/${id}`),
@@ -109,7 +109,6 @@ export const departmentAPI = {
 };
 
 // STAFF — FR-03 Qadir
-// fields: id, name, email, role, department, office_location
 export const staffAPI = {
   getAll:  ()              => api.get("/staff/all"),
   search:  (q, role = "") => api.get("/staff/search", { params: { q, role } }),
