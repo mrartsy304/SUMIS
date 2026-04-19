@@ -35,13 +35,22 @@ export const authAPI = {
 // SERVICE REQUESTS — FR-05 Qadir
 // fields: request_type, description, status, student_id, department_id, created_at
 export const serviceRequestAPI = {
-  getAll:          ()              => api.get("/requests"),
-  getById:         (id)            => api.get(`/requests/${id}`),
-  getByStudent:    (studentId)     => api.get(`/requests/user/${studentId}`),
-  create:          (data)          => api.post("/requests", data),
-  // POST body: { request_type, description, department_id, student_id }
-  getDepartments:  ()              => api.get("/requests/departments"),
-  getCategories:   ()              => api.get("/requests/categories"),
+  getAll:         ()          => api.get("/requests"),
+  getById:        (id)        => api.get(`/requests/${id}`),
+  getByStudent:   (studentId) => api.get(`/requests/user/${studentId}`),
+  create:         (data)      => api.post("/requests", data),
+  getDepartments: ()          => api.get("/requests/departments"),
+  getCategories:  ()          => api.get("/requests/categories"),
+};
+
+// ROUTING — FR-06 Qadir
+// Uses: complaint.py, department.py, service_request.py
+export const routingAPI = {
+  routeRequest:   (id)  => api.post(`/routing/route-request/${id}`),
+  routeComplaint: (id)  => api.post(`/routing/route-complaint/${id}`),
+  routeAll:       ()    => api.post("/routing/route-all"),
+  getStats:       ()    => api.get("/routing/stats"),
+  getPending:     ()    => api.get("/routing/pending"),
 };
 
 // COMPLAINTS — fields: description, priority, status, category_id, department_id, user_id
