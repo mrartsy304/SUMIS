@@ -3,41 +3,46 @@ import { useAuth } from "../context/AuthContext";
 
 const NAV_LINKS = {
   student: [
-    { label: "Dashboard",      path: "/dashboard/student" },
+    { label: "Dashboard",        path: "/dashboard/student" },
     { label: "Service Requests", path: "/dashboard/student#service-requests" },
-    { label: "Complaints",       path: "/dashboard/student#complaints" },
+    { label: "My Complaints",    path: "/complaints/my" },
+    { label: "Submit Complaint", path: "/complaints/submit" },
     { label: "Events",           path: "/dashboard/student#events" },
-    { label: "Departments",      path: "/departments" },       // FR-02 — Ali
-    { label: "Submit Request",   path: "/submit-request" },   // FR-05 — Qadir
-    { label: "Procedures",       path: "/procedures" },       // FR-04 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Departments",      path: "/departments" },
+    { label: "Submit Request",   path: "/submit-request" },
+    { label: "Procedures",       path: "/procedures" },
+    { label: "Office Locator",   path: "/office-locator" },
   ],
   faculty: [
-    { label: "Dashboard",     path: "/dashboard/faculty" },
-    { label: "Appointments",  path: "/dashboard/faculty#appointments" },
-    { label: "Announcements", path: "/dashboard/faculty#announcements" },
-    { label: "Departments",   path: "/departments" },          // FR-02 — Ali
-    { label: "Procedures",    path: "/procedures" },           // FR-04 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",        path: "/dashboard/faculty" },
+    { label: "Appointments",     path: "/dashboard/faculty#appointments" },
+    { label: "My Complaints",    path: "/complaints/my" },
+    { label: "Submit Complaint", path: "/complaints/submit" },
+    { label: "Announcements",    path: "/dashboard/faculty#announcements" },
+    { label: "Departments",      path: "/departments" },
+    { label: "Procedures",       path: "/procedures" },
+    { label: "Office Locator",   path: "/office-locator" },
   ],
   admin: [
-    { label: "Dashboard",       path: "/dashboard/admin" },
-    { label: "Users",           path: "/dashboard/admin#users" },
-    { label: "Reports",         path: "/dashboard/admin#reports" },
-    { label: "Departments",     path: "/departments" },        // FR-02 — Ali
-    { label: "Submit Request",  path: "/submit-request" },    // FR-05 — Qadir
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",        path: "/dashboard/admin" },
+    { label: "Users",            path: "/dashboard/admin#users" },
+    { label: "Reports",          path: "/dashboard/admin#reports" },
+    { label: "Departments",      path: "/departments" },
+    { label: "View Complaints",  path: "/admin/complaints" },
+    { label: "Office Locator",   path: "/office-locator" },
   ],
   staff: [
-    { label: "Dashboard",   path: "/dashboard" },
-    { label: "Departments", path: "/departments" },            // FR-02 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",        path: "/dashboard" },
+    { label: "My Complaints",    path: "/complaints/my" },
+    { label: "Submit Complaint", path: "/complaints/submit" },
+    { label: "Departments",      path: "/departments" },
+    { label: "Office Locator",   path: "/office-locator" },
   ],
   event_coordinator: [
-    { label: "Dashboard",   path: "/dashboard" },
-    { label: "Events",      path: "/dashboard#events" },
-    { label: "Departments", path: "/departments" },            // FR-02 — Ali
-    { label: "Office Locator", path: "/office-locator" },  // FR-03
+    { label: "Dashboard",        path: "/dashboard" },
+    { label: "Events",           path: "/dashboard#events" },
+    { label: "Departments",      path: "/departments" },
+    { label: "Office Locator",   path: "/office-locator" },
   ],
 };
 
@@ -51,27 +56,41 @@ const ROLE_COLORS = {
 
 export default function Navbar() {
   const { user, logout } = useAuth();
-  const navigate = useNavigate();
-  const location = useLocation();
+  const navigate         = useNavigate();
+  const location         = useLocation();
 
   if (!user) return null;
 
-  const links = NAV_LINKS[user.role] || NAV_LINKS.staff;
+  const links     = NAV_LINKS[user.role] || NAV_LINKS.staff;
   const roleColor = ROLE_COLORS[user.role] || "#6366f1";
 
   const handleLogout = async () => {
     await logout();
-    navigate("/");
+    navigate("/", { replace: true });
   };
 
   return (
     <nav style={styles.nav}>
       <div style={styles.inner}>
-        <div style={styles.brand} onClick={() => navigate("/dashboard")} role="button">
+
+        {/* Brand / Logo */}
+        <div
+          style={styles.brand}
+          onClick={() =>
+            navigate(NAV_LINKS[user.role]?.[0]?.path.split("#")[0] || "/dashboard")
+          }
+          role="button"
+          tabIndex={0}
+          onKeyDown={(e) =>
+            e.key === "Enter" &&
+            navigate(NAV_LINKS[user.role]?.[0]?.path.split("#")[0] || "/dashboard")
+          }
+        >
           <span style={styles.brandIcon}>◈</span>
           <span style={styles.brandName}>SUMIS</span>
         </div>
 
+        {/* Navigation Links */}
         <div style={styles.links}>
           {links.map((l) => {
             const active = location.pathname === l.path.split("#")[0];
@@ -91,13 +110,23 @@ export default function Navbar() {
           })}
         </div>
 
+        {/* User Area */}
         <div style={styles.userArea}>
-          <div style={{ ...styles.roleBadge, borderColor: roleColor, color: roleColor }}>
+          <div
+            style={{
+              ...styles.roleBadge,
+              borderColor: roleColor,
+              color: roleColor,
+            }}
+          >
             {user.role.replace("_", " ")}
           </div>
           <span style={styles.userName}>{user.name}</span>
-          <button style={styles.logoutBtn} onClick={handleLogout}>Sign Out</button>
+          <button style={styles.logoutBtn} onClick={handleLogout}>
+            Sign Out
+          </button>
         </div>
+
       </div>
     </nav>
   );
@@ -128,7 +157,10 @@ const styles = {
     cursor: "pointer",
     flexShrink: 0,
   },
-  brandIcon: { fontSize: 18, color: "#818cf8" },
+  brandIcon: {
+    fontSize: 18,
+    color: "#818cf8",
+  },
   brandName: {
     fontSize: 15,
     fontWeight: "normal",
@@ -136,7 +168,12 @@ const styles = {
     letterSpacing: "0.25em",
     fontFamily: "'Georgia', serif",
   },
-  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
+  links: {
+    display: "flex",
+    gap: 4,
+    flex: 1,
+    flexWrap: "wrap",
+  },
   link: {
     padding: "6px 12px",
     borderRadius: 2,
@@ -146,9 +183,18 @@ const styles = {
     transition: "color 0.15s",
     fontFamily: "monospace",
     letterSpacing: "0.02em",
+    cursor: "pointer",
   },
-  linkActive:  { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
-  userArea:    { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
+  linkActive: {
+    color: "#e2e8f0",
+    background: "rgba(99,102,241,0.1)",
+  },
+  userArea: {
+    display: "flex",
+    alignItems: "center",
+    gap: 12,
+    flexShrink: 0,
+  },
   roleBadge: {
     fontSize: 10,
     padding: "3px 10px",
@@ -158,7 +204,10 @@ const styles = {
     letterSpacing: "0.12em",
     fontFamily: "monospace",
   },
-  userName:    { fontSize: 13, color: "#94a3b8" },
+  userName: {
+    fontSize: 13,
+    color: "#94a3b8",
+  },
   logoutBtn: {
     background: "transparent",
     border: "1px solid rgba(239,68,68,0.25)",

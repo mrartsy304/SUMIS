@@ -1,231 +1,102 @@
+// src/pages/Login.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-export default function Login() {
-  const { login, error } = useAuth();
-  const navigate = useNavigate();
-  const [form, setForm] = useState({ email: "", password: "" });
-  const [loading, setLoading] = useState(false);
-  const [localError, setLocalError] = useState("");
+const ROLE_HOME = {
+  student:           "/dashboard/student",
+  faculty:           "/dashboard/faculty",
+  admin:             "/dashboard/admin",
+  staff:             "/dashboard",
+  event_coordinator: "/dashboard",
+};
 
-  const handleChange = (e) => {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    setLocalError("");
-  };
+export default function Login() {
+  const { login } = useAuth();
+  const navigate  = useNavigate();
+  const [email,    setEmail]    = useState("");
+  const [password, setPassword] = useState("");
+  const [error,    setError]    = useState(null);
+  const [loading,  setLoading]  = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.email || !form.password) {
-      setLocalError("Please fill in all fields.");
-      return;
-    }
+    setError(null);
     setLoading(true);
     try {
-      const user = await login(form);
-      // Route based on role
-      const routes = {
-        student: "/dashboard/student",
-        faculty: "/dashboard/faculty",
-        admin: "/dashboard/admin",
-        staff: "/dashboard",
-        event_coordinator: "/dashboard",
-      };
-      navigate(routes[user.role] || "/dashboard");
+      const user = await login({ email: email.trim().toLowerCase(), password });
+      const dest  = ROLE_HOME[user?.role] || "/dashboard";
+      navigate(dest, { replace: true });
     } catch (err) {
-      setLocalError(err.message || "Login failed.");
+      setError(err.message || "Login failed.");
     } finally {
       setLoading(false);
     }
   };
 
-  const displayError = localError || error;
-
   return (
-    <div style={styles.page}>
-      {/* Background grid */}
-      <div style={styles.grid} />
-
-      <div style={styles.card}>
-        {/* Header */}
-        <div style={styles.header}>
-          <div style={styles.logo}>
-            <span style={styles.logoIcon}>◈</span>
+    <div style={s.page}>
+      <div style={s.card}>
+        <div style={s.brand}>
+          <span style={s.logo}>🎓</span>
+          <div>
+            <h1 style={s.title}>SUMIS</h1>
+            <p style={s.sub}>Smart University Service & Information Management System</p>
           </div>
-          <h1 style={styles.title}>SUMIS</h1>
-          <p style={styles.subtitle}>Student University Management & Information System</p>
-          <div style={styles.divider} />
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <div style={styles.field}>
-            <label style={styles.label}>Email Address</label>
+        <form onSubmit={handleSubmit} noValidate style={s.form}>
+          <div style={s.field}>
+            <label style={s.label}>Email</label>
             <input
-              name="email"
               type="email"
-              value={form.email}
-              onChange={handleChange}
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="you@sumis.edu"
-              style={styles.input}
-              onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
-              onBlur={(e) => Object.assign(e.target.style, styles.input)}
+              required
+              style={s.input}
             />
           </div>
-
-          <div style={styles.field}>
-            <label style={styles.label}>Password</label>
+          <div style={s.field}>
+            <label style={s.label}>Password</label>
             <input
-              name="password"
               type="password"
-              value={form.password}
-              onChange={handleChange}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              style={styles.input}
-              onFocus={(e) => Object.assign(e.target.style, styles.inputFocus)}
-              onBlur={(e) => Object.assign(e.target.style, styles.input)}
+              required
+              style={s.input}
             />
           </div>
 
-          {displayError && <div style={styles.error}>{displayError}</div>}
+          {error && (
+            <div style={s.errBanner}>⚠️ {error}</div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            style={loading ? { ...styles.btn, ...styles.btnDisabled } : styles.btn}
+            style={{ ...s.btn, opacity: loading ? 0.6 : 1, cursor: loading ? "not-allowed" : "pointer" }}
           >
-            {loading ? "Signing in…" : "Sign In →"}
+            {loading ? "Signing in…" : "Sign In"}
           </button>
         </form>
-
-        {/* Mock hint */}
-        <div style={styles.hint}>
-          <p style={styles.hintTitle}>Dev Mode — Quick Login</p>
-          <p style={styles.hintText}>Include role in email: <code style={styles.code}>student@x.com</code>, <code style={styles.code}>faculty@x.com</code>, <code style={styles.code}>admin@x.com</code></p>
-        </div>
       </div>
     </div>
   );
 }
 
-const styles = {
-  page: {
-    minHeight: "100vh",
-    background: "#0a0a0f",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    position: "relative",
-    overflow: "hidden",
-    fontFamily: "'Georgia', serif",
-  },
-  grid: {
-    position: "absolute",
-    inset: 0,
-    backgroundImage:
-      "linear-gradient(rgba(99,102,241,0.06) 1px, transparent 1px), linear-gradient(90deg, rgba(99,102,241,0.06) 1px, transparent 1px)",
-    backgroundSize: "40px 40px",
-    pointerEvents: "none",
-  },
-  card: {
-    position: "relative",
-    zIndex: 1,
-    width: "100%",
-    maxWidth: 420,
-    background: "rgba(15,15,25,0.95)",
-    border: "1px solid rgba(99,102,241,0.25)",
-    borderRadius: 2,
-    padding: "48px 40px",
-    boxShadow: "0 0 80px rgba(99,102,241,0.08), 0 25px 50px rgba(0,0,0,0.5)",
-  },
-  header: { textAlign: "center", marginBottom: 32 },
-  logo: {
-    display: "inline-flex",
-    alignItems: "center",
-    justifyContent: "center",
-    width: 48,
-    height: 48,
-    border: "1px solid rgba(99,102,241,0.4)",
-    borderRadius: 2,
-    marginBottom: 16,
-  },
-  logoIcon: { fontSize: 22, color: "#818cf8" },
-  title: {
-    margin: 0,
-    fontSize: 28,
-    fontWeight: "normal",
-    color: "#e2e8f0",
-    letterSpacing: "0.3em",
-    textTransform: "uppercase",
-  },
-  subtitle: {
-    margin: "8px 0 0",
-    fontSize: 11,
-    color: "#64748b",
-    letterSpacing: "0.05em",
-    lineHeight: 1.6,
-  },
-  divider: {
-    width: 40,
-    height: 1,
-    background: "linear-gradient(90deg, transparent, #6366f1, transparent)",
-    margin: "20px auto 0",
-  },
-  form: { display: "flex", flexDirection: "column", gap: 20 },
-  field: { display: "flex", flexDirection: "column", gap: 6 },
-  label: { fontSize: 11, color: "#94a3b8", letterSpacing: "0.1em", textTransform: "uppercase", fontFamily: "monospace" },
-  input: {
-    background: "rgba(99,102,241,0.04)",
-    border: "1px solid rgba(99,102,241,0.15)",
-    borderRadius: 2,
-    padding: "11px 14px",
-    color: "#e2e8f0",
-    fontSize: 14,
-    outline: "none",
-    transition: "border-color 0.2s",
-    fontFamily: "inherit",
-  },
-  inputFocus: {
-    background: "rgba(99,102,241,0.08)",
-    border: "1px solid rgba(99,102,241,0.5)",
-    borderRadius: 2,
-    padding: "11px 14px",
-    color: "#e2e8f0",
-    fontSize: 14,
-    outline: "none",
-    transition: "border-color 0.2s",
-    fontFamily: "inherit",
-  },
-  error: {
-    background: "rgba(239,68,68,0.08)",
-    border: "1px solid rgba(239,68,68,0.25)",
-    borderRadius: 2,
-    padding: "10px 14px",
-    color: "#fca5a5",
-    fontSize: 13,
-  },
-  btn: {
-    background: "linear-gradient(135deg, #4f46e5, #7c3aed)",
-    border: "none",
-    borderRadius: 2,
-    padding: "13px",
-    color: "#fff",
-    fontSize: 14,
-    letterSpacing: "0.05em",
-    cursor: "pointer",
-    marginTop: 4,
-    transition: "opacity 0.2s",
-    fontFamily: "inherit",
-  },
-  btnDisabled: { opacity: 0.5, cursor: "not-allowed" },
-  hint: {
-    marginTop: 28,
-    padding: "14px 16px",
-    background: "rgba(99,102,241,0.04)",
-    border: "1px solid rgba(99,102,241,0.1)",
-    borderRadius: 2,
-  },
-  hintTitle: { margin: "0 0 4px", fontSize: 11, color: "#818cf8", fontFamily: "monospace", letterSpacing: "0.05em" },
-  hintText: { margin: 0, fontSize: 11, color: "#475569", lineHeight: 1.7 },
-  code: { color: "#a5b4fc", background: "rgba(99,102,241,0.15)", padding: "1px 5px", borderRadius: 2 },
+const s = {
+  page:     { minHeight: "100vh", background: "linear-gradient(135deg,#1e3a8a 0%,#1d4ed8 60%,#3b82f6 100%)", display: "flex", alignItems: "center", justifyContent: "center", padding: "24px" },
+  card:     { background: "#fff", borderRadius: "20px", padding: "40px 36px", width: "100%", maxWidth: "420px", boxShadow: "0 20px 60px rgba(0,0,0,0.25)" },
+  brand:    { display: "flex", alignItems: "center", gap: "14px", marginBottom: "32px", paddingBottom: "24px", borderBottom: "1.5px solid #f3f4f6" },
+  logo:     { fontSize: "40px" },
+  title:    { margin: 0, fontSize: "26px", fontWeight: "800", color: "#111827" },
+  sub:      { margin: "4px 0 0", fontSize: "11px", color: "#6b7280", lineHeight: "1.4" },
+  form:     { display: "flex", flexDirection: "column", gap: "18px" },
+  field:    { display: "flex", flexDirection: "column", gap: "6px" },
+  label:    { fontSize: "13px", fontWeight: "600", color: "#374151" },
+  input:    { padding: "11px 14px", borderRadius: "10px", border: "1.5px solid #d1d5db", fontSize: "14px", outline: "none", fontFamily: "inherit", color: "#111827" },
+  errBanner:{ background: "#fee2e2", color: "#991b1b", border: "1px solid #fca5a5", borderRadius: "8px", padding: "10px 14px", fontSize: "13px", fontWeight: "500" },
+  btn:      { padding: "13px", borderRadius: "10px", border: "none", background: "#1d4ed8", color: "#fff", fontSize: "15px", fontWeight: "700", fontFamily: "inherit" },
 };

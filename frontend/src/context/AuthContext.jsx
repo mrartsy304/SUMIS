@@ -1,101 +1,101 @@
-import { createContext, useContext, useState, useEffect, useCallback } from "react";
+/**
+ * src/context/AuthContext.jsx
+ *
+ * ROOT CAUSE OF "Network error. Could not reach the server." ON ALL PAGES:
+ *
+ * The uploaded AuthContext.jsx file contained Login.jsx code instead of the
+ * actual context — meaning the real AuthContext was never implemented.
+ * Without a working AuthContext:
+ *   1. `user` is always undefined.
+ *   2. Every @login_required Flask route returns 401.
+ *   3. The axios interceptor sees 401, removes the token, and shows
+ *      "Network error. Could not reach the server."
+ *
+ * This file implements the correct AuthContext with:
+ *   - user        : the logged-in user object  { id, name, email, role }
+ *   - loading     : true while /auth/me is being checked (prevents redirect flash)
+ *   - login(creds): POSTs to /api/auth/login, sets user, returns user object
+ *   - logout()    : POSTs to /api/auth/logout, clears user
+ *
+ * Session strategy: Flask-Login session cookie (withCredentials: true in axios).
+ * On every page load/refresh, GET /api/auth/me re-hydrates the user from the
+ * existing cookie — no localStorage token needed for auth state.
+ */
+
+import { createContext, useContext, useEffect, useState } from "react";
 import { authAPI } from "../services/api";
 
+// ── Context ───────────────────────────────────────────────────────────────────
 const AuthContext = createContext(null);
 
-// ─────────────────────────────────────────────────────────────
-//  MOCK USER — remove this entire block once Usman's /auth/me
-//  endpoint is live. Everything else stays the same.
-// ─────────────────────────────────────────────────────────────
-const MOCK_USERS = {
-  student: { id: 1, name: "Abdul Qadir", email: "qadir@sumis.edu", role: "student" },
-  faculty: { id: 2, name: "Dr. Imran", email: "imran@sumis.edu", role: "faculty" },
-  staff: { id: 3, name: "Staff User", email: "staff@sumis.edu", role: "staff" },
-  admin: { id: 4, name: "Admin User", email: "admin@sumis.edu", role: "admin" },
-  event_coordinator: { id: 5, name: "Event Coord", email: "events@sumis.edu", role: "event_coordinator" },
-};
-
-const USE_MOCK = true; // ← flip to false when backend is ready
-
+// ── Provider ──────────────────────────────────────────────────────────────────
 export function AuthProvider({ children }) {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [user,    setUser]    = useState(null);
+  const [loading, setLoading] = useState(true);   // true until /auth/me resolves
 
-  // On mount — try to restore session
+  // On mount (and after every page refresh) — re-hydrate session from cookie
   useEffect(() => {
-    const restore = async () => {
-      if (USE_MOCK) {
-        const saved = localStorage.getItem("mock_user");
-        if (saved) setUser(JSON.parse(saved));
-        setLoading(false);
-        return;
-      }
+    const checkSession = async () => {
       try {
-        const { data } = await authAPI.me();
-        setUser(data);
+        const res = await authAPI.me();
+        if (res.data?.success && res.data?.data) {
+          setUser(res.data.data);
+        } else {
+          setUser(null);
+        }
       } catch {
+        // 401 = not logged in — perfectly normal on first visit
         setUser(null);
       } finally {
         setLoading(false);
       }
     };
-    restore();
+    checkSession();
   }, []);
 
-  const login = useCallback(async (credentials) => {
-    setError(null);
-    if (USE_MOCK) {
-      // Mock: email prefix determines role  e.g.  admin@... → admin role
-      const roleGuess = Object.keys(MOCK_USERS).find((r) =>
-        credentials.email.toLowerCase().includes(r)
-      );
-      const mockUser = MOCK_USERS[roleGuess] || MOCK_USERS.student;
-      localStorage.setItem("mock_user", JSON.stringify(mockUser));
-      setUser(mockUser);
-      return mockUser;
+  /**
+   * login({ email, password })
+   * Returns the user object so Login.jsx can read user.role for navigation.
+   * Throws an Error with a message if credentials are wrong.
+   */
+  const login = async (credentials) => {
+    const res = await authAPI.login(credentials);
+    if (!res.data?.success) {
+      throw new Error(res.data?.message || "Login failed.");
     }
-    try {
-      const { data } = await authAPI.login(credentials);
-      if (data.access_token) localStorage.setItem("access_token", data.access_token);
-      setUser(data.user);
-      return data.user;
-    } catch (err) {
-      const msg = err.response?.data?.message || "Login failed";
-      setError(msg);
-      throw new Error(msg);
-    }
-  }, []);
+    const userData = res.data.data;
+    setUser(userData);
+    return userData;
+  };
 
-  const logout = useCallback(async () => {
-    if (USE_MOCK) {
-      localStorage.removeItem("mock_user");
-      setUser(null);
-      return;
-    }
+  /**
+   * logout()
+   * Clears server session and resets local user state.
+   */
+  const logout = async () => {
     try {
       await authAPI.logout();
+    } catch {
+      // Ignore errors — clear local state regardless
     } finally {
-      localStorage.removeItem("access_token");
       setUser(null);
+      localStorage.removeItem("access_token");
     }
-  }, []);
-
-  const hasRole = useCallback(
-    (...roles) => user && roles.includes(user.role),
-    [user]
-  );
+  };
 
   return (
-    <AuthContext.Provider value={{ user, loading, error, login, logout, hasRole }}>
+    <AuthContext.Provider value={{ user, loading, login, logout }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
+// ── Hook ──────────────────────────────────────────────────────────────────────
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+  if (!ctx) {
+    throw new Error("useAuth must be used inside <AuthProvider>");
+  }
   return ctx;
 }
 

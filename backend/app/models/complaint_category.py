@@ -15,8 +15,8 @@ class ComplaintCategory(db.Model):
         db.Text
     )
 
-    complaints = db.relationship(
-        "Complaint",
-        backref="category",
-        lazy=True
-    )
+    # complaints = db.relationship(
+    #     "Complaint",
+    #     backref="category",
+    #     lazy=True
+    # )

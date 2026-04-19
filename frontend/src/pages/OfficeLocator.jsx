@@ -1,7 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import Navbar from "../components/Navbar";
 import DepartmentCard from "../components/DepartmentCard";
-import { useAuth } from "../context/AuthContext";
 import { staffAPI, departmentAPI } from "../services/api";
 
 // ── Mock data — used as fallback when backend is not running ──
@@ -32,14 +31,14 @@ const ROLE_LABELS = {
 };
 
 export default function OfficeLocator() {
-  const { user } = useAuth();
+  // ✅ Removed unused `user` from useAuth() — ESLint warning fix
 
   const [staffList,      setStaffList]      = useState([]);
   const [loading,        setLoading]        = useState(true);
   const [searchQuery,    setSearchQuery]    = useState("");
   const [roleFilter,     setRoleFilter]     = useState("all");
   const [selectedMember, setSelectedMember] = useState(null);
-  const [deptDetail,     setDeptDetail]     = useState(null);  // Ali's DepartmentCard data
+  const [deptDetail,     setDeptDetail]     = useState(null);
 
   // ── Load all staff on mount ──
   useEffect(() => {
@@ -54,7 +53,7 @@ export default function OfficeLocator() {
         setStaffList(res.data.staff || []);
       } catch (err) {
         console.error("Failed to load staff:", err);
-        setStaffList(MOCK_STAFF); // fallback to mock on error
+        setStaffList(MOCK_STAFF);
       } finally {
         setLoading(false);
       }
@@ -65,10 +64,9 @@ export default function OfficeLocator() {
   // ── Live search as user types ──
   const handleSearch = useCallback(async (q) => {
     setSearchQuery(q);
-    if (MOCK_MODE) return; // mock filtering handled below
+    if (MOCK_MODE) return;
 
     if (q.trim() === "" && roleFilter === "all") {
-      // Reset to full list
       try {
         const res = await staffAPI.getAll();
         setStaffList(res.data.staff || []);
@@ -84,14 +82,13 @@ export default function OfficeLocator() {
     }
   }, [roleFilter]);
 
-  // ── When a staff member is selected, fetch their department via Ali's API ──
+  // ── When a staff member is selected, fetch their department ──
   const handleSelectMember = async (member) => {
     setSelectedMember(member);
     setDeptDetail(null);
 
-    if (MOCK_MODE) return; // department shown from mock data directly
+    if (MOCK_MODE) return;
 
-    // Once User has department_id, fetch the full DepartmentCard data from Ali's API
     if (member.department_id) {
       try {
         const res = await departmentAPI.getById(member.department_id);
@@ -236,13 +233,11 @@ export default function OfficeLocator() {
 
                 <div style={styles.divider} />
 
-                {/* Department info — uses Ali's DepartmentCard component */}
+                {/* Department info */}
                 <p style={styles.deptSectionLabel}>Department</p>
                 {deptDetail ? (
-                  // Real data from Ali's GET /departments/<id>
                   <DepartmentCard department={deptDetail} />
                 ) : (
-                  // Mock department display until department_id FK added to User
                   <div style={styles.deptMock}>
                     <p style={styles.deptMockName}>{selectedMember.department || "Not assigned"}</p>
                     {selectedMember.office_location && (
