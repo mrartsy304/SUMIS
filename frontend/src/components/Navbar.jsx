@@ -1,0 +1,128 @@
+import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+
+const NAV_LINKS = {
+  student: [
+    { label: "Dashboard",        path: "/dashboard/student" },
+    { label: "Submit Request",   path: "/submit-request" },      // FR-05
+    { label: "Track Requests",   path: "/track-requests" },      // FR-07
+    { label: "Complaints",       path: "/complaints/submit" },   // FR-10
+    { label: "Book Appointment", path: "/book-appointment" },    // FR-14
+    { label: "Departments",      path: "/departments" },          // FR-02
+    { label: "Procedures",       path: "/procedures" },           // FR-04
+    { label: "Office Locator",   path: "/office-locator" },      // FR-03
+  ],
+  faculty: [
+    { label: "Dashboard",      path: "/dashboard/faculty" },
+    { label: "Appointments",   path: "/faculty-appointments" },  // FR-14 Part 2
+    { label: "Complaints",     path: "/complaints/submit" },     // FR-10
+    { label: "Announcements",  path: "/dashboard/faculty#announcements" },
+    { label: "Departments",    path: "/departments" },             // FR-02
+    { label: "Procedures",     path: "/procedures" },              // FR-04
+    { label: "Office Locator", path: "/office-locator" },         // FR-03
+  ],
+  admin: [
+    { label: "Dashboard",       path: "/dashboard/admin" },
+    { label: "Submit Request",  path: "/submit-request" },        // FR-05
+    { label: "Track Requests",  path: "/track-requests" },        // FR-07
+    { label: "Book Appointment",path: "/book-appointment" },      // FR-14
+    { label: "Request Routing", path: "/request-routing" },       // FR-06
+    { label: "Staff Review",    path: "/staff-review" },          // FR-08
+    { label: "Completion",      path: "/service-completion" },    // FR-09
+    { label: "Complaints",      path: "/admin/complaints" },      // FR-10 to FR-13
+    { label: "Departments",     path: "/departments" },            // FR-02
+    { label: "Office Locator",  path: "/office-locator" },        // FR-03
+  ],
+  staff: [
+    { label: "Dashboard",       path: "/dashboard" },
+    { label: "Staff Review",    path: "/staff-review" },          // FR-08
+    { label: "Completion",      path: "/service-completion" },    // FR-09
+    { label: "Request Routing", path: "/request-routing" },       // FR-06
+    { label: "Complaints",      path: "/complaints/submit" },     // FR-10
+    { label: "Departments",     path: "/departments" },            // FR-02
+    { label: "Office Locator",  path: "/office-locator" },        // FR-03
+  ],
+  event_coordinator: [
+    { label: "Dashboard",      path: "/dashboard" },
+    { label: "Events",         path: "/dashboard#events" },
+    { label: "Departments",    path: "/departments" },             // FR-02
+    { label: "Office Locator", path: "/office-locator" },         // FR-03
+  ],
+};
+
+const ROLE_COLORS = {
+  student:           "#6366f1",
+  faculty:           "#0ea5e9",
+  admin:             "#f59e0b",
+  staff:             "#10b981",
+  event_coordinator: "#ec4899",
+};
+
+export default function Navbar() {
+  const { user, logout } = useAuth();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  if (!user) return null;
+
+  const links     = NAV_LINKS[user.role] || NAV_LINKS.staff;
+  const roleColor = ROLE_COLORS[user.role] || "#6366f1";
+
+  const handleLogout = async () => {
+    await logout();
+    navigate("/");
+  };
+
+  return (
+    <nav style={styles.nav}>
+      <div style={styles.inner}>
+        <div style={styles.brand} onClick={() => navigate("/dashboard")} role="button">
+          <span style={styles.brandIcon}>◈</span>
+          <span style={styles.brandName}>SUMIS</span>
+        </div>
+
+        <div style={styles.links}>
+          {links.map((l) => {
+            const active = location.pathname === l.path.split("#")[0];
+            return (
+              <a
+                key={l.label}
+                href={l.path}
+                style={active ? { ...styles.link, ...styles.linkActive } : styles.link}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigate(l.path.split("#")[0]);
+                }}
+              >
+                {l.label}
+              </a>
+            );
+          })}
+        </div>
+
+        <div style={styles.userArea}>
+          <div style={{ ...styles.roleBadge, borderColor: roleColor, color: roleColor }}>
+            {user.role.replace("_", " ")}
+          </div>
+          <span style={styles.userName}>{user.name}</span>
+          <button style={styles.logoutBtn} onClick={handleLogout}>Sign Out</button>
+        </div>
+      </div>
+    </nav>
+  );
+}
+
+const styles = {
+  nav:        { position: "sticky", top: 0, zIndex: 100, background: "rgba(10,10,15,0.92)", backdropFilter: "blur(12px)", borderBottom: "1px solid rgba(99,102,241,0.12)" },
+  inner:      { maxWidth: 1280, margin: "0 auto", padding: "0 32px", height: 60, display: "flex", alignItems: "center", gap: 32 },
+  brand:      { display: "flex", alignItems: "center", gap: 10, cursor: "pointer", flexShrink: 0 },
+  brandIcon:  { fontSize: 18, color: "#818cf8" },
+  brandName:  { fontSize: 15, fontWeight: "normal", color: "#e2e8f0", letterSpacing: "0.25em", fontFamily: "'Georgia', serif" },
+  links:      { display: "flex", gap: 4, flex: 1, flexWrap: "wrap" },
+  link:       { padding: "6px 12px", borderRadius: 2, fontSize: 12, color: "#64748b", textDecoration: "none", transition: "color 0.15s", fontFamily: "monospace", letterSpacing: "0.02em" },
+  linkActive: { color: "#e2e8f0", background: "rgba(99,102,241,0.1)" },
+  userArea:   { display: "flex", alignItems: "center", gap: 12, flexShrink: 0 },
+  roleBadge:  { fontSize: 10, padding: "3px 10px", border: "1px solid", borderRadius: 2, textTransform: "uppercase", letterSpacing: "0.12em", fontFamily: "monospace" },
+  userName:   { fontSize: 13, color: "#94a3b8" },
+  logoutBtn:  { background: "transparent", border: "1px solid rgba(239,68,68,0.25)", borderRadius: 2, padding: "5px 12px", fontSize: 12, color: "#f87171", cursor: "pointer", fontFamily: "monospace", letterSpacing: "0.05em" },
+};

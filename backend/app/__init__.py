@@ -1,0 +1,117 @@
+import os
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask_login import LoginManager
+from dotenv import load_dotenv
+
+from app.models import db
+
+# ── Model imports (order matters — parents before children) ───────────────────
+from app.models.user import User
+from app.models.department import Department
+from app.models.complaint_category import ComplaintCategory
+from app.models.complaint import Complaint
+from app.models.service_request import ServiceRequest
+from app.models.request_status_history import RequestStatusHistory
+from app.models.appointment import Appointment
+from app.models.event import Event
+from app.models.event_registration import EventRegistration
+from app.models.notification import Notification
+from app.models.announcement import Announcement
+
+# ── FR-10 to FR-13: Complaint Management Pipeline ────────────────────────────
+from app.models.support_unit import SupportUnit
+from app.models.complaint_v2 import ComplaintV2
+from app.models.complaint_status_history import ComplaintStatusHistory
+
+# ── Blueprint imports ─────────────────────────────────────────────────────────
+from app.routes.departments import departments_bp
+from app.routes.staff       import staff_bp          # FR-03 — Qadir
+from app.routes.procedures  import procedures_bp      # FR-04 — Ali
+from app.routes.requests    import requests_bp        # FR-05 — Usman
+from app.routes.routing     import routing_bp         # FR-06 — Qadir
+from app.routes.status      import status_bp          # FR-07 — Ali
+from app.routes.decision    import decision_bp        # FR-08 — Qadir
+from app.routes.completion  import completion_bp      # FR-09 — Usman
+from app.routes.complaints_v2 import complaints_v2_bp  # FR-10 to FR-13 — Abdul Qadir
+
+load_dotenv()
+
+
+def create_app() -> Flask:
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
+    react_build_dir = os.path.join(base_dir, "frontend", "build")
+
+    app = Flask(__name__, static_folder=react_build_dir, static_url_path="/")
+    app.url_map.strict_slashes = False
+
+    db_url = os.getenv("DATABASE_URL", "")
+    if db_url.startswith("postgres://"):
+        db_url = db_url.replace("postgres://", "postgresql://", 1)
+
+    app.config["SQLALCHEMY_DATABASE_URI"] = db_url
+    app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    app.config["SECRET_KEY"] = os.getenv("SECRET_KEY", "change-me")
+
+    # ── Initialize extensions ─────────────────────────────────────────────────
+    db.init_app(app)
+
+    login_manager = LoginManager()
+    login_manager.init_app(app)
+
+    @login_manager.user_loader
+    def load_user(user_id):
+        return User.query.get(int(user_id))
+
+    # ── CORS ──────────────────────────────────────────────────────────────────
+    CORS(app, resources={r"/api/*": {
+        "origins": [
+            "http://localhost:3000",
+            "http://localhost:5000",
+            "http://127.0.0.1:5000",
+        ],
+        "supports_credentials": True,
+    }})
+
+    # ── Register blueprints ───────────────────────────────────────────────────
+    app.register_blueprint(departments_bp)  # FR-02 — Ali
+    app.register_blueprint(staff_bp)        # FR-03 — Qadir
+    app.register_blueprint(procedures_bp)   # FR-04 — Ali
+    app.register_blueprint(requests_bp)     # FR-05 — Usman
+    app.register_blueprint(routing_bp)      # FR-06 — Qadir
+    app.register_blueprint(status_bp)       # FR-07 — Ali
+    app.register_blueprint(decision_bp)     # FR-08 — Qadir
+    app.register_blueprint(completion_bp)   # FR-09 — Usman
+    app.register_blueprint(complaints_v2_bp)  # FR-10 to FR-13 — Abdul Qadir
+
+    # ── Serve React SPA ───────────────────────────────────────────────────────
+    @app.route("/", defaults={"path": ""})
+    @app.route("/<path:path>")
+    def serve_react(path):
+        index = os.path.join(react_build_dir, "index.html")
+        if os.path.exists(index):
+            return app.send_static_file("index.html")
+        return jsonify({"message": "Frontend not built yet"}), 200
+
+    with app.app_context():
+        db.create_all()
+
+        if Department.query.count() == 0:
+            db.session.add_all([
+                Department(name="Computer Science",        building_location="Block A, Room 101", contact_email="cs@sumis.edu", contact_phone="+92 300-1111111", description="Software development and computing.",        services="Labs, Programming Help, Research Support"),
+                Department(name="Software Engineering",    building_location="Block B, Room 201", contact_email="se@sumis.edu", contact_phone="+92 300-2222222", description="Software design and development lifecycle.", services="Project Guidance, Labs, Industry Training"),
+                Department(name="Artificial Intelligence", building_location="Block C, Room 301", contact_email="ai@sumis.edu", contact_phone="+92 300-3333333", description="Machine learning, deep learning, AI.",        services="AI Labs, Research, Model Development"),
+                Department(name="Data Science",            building_location="Block D, Room 401", contact_email="ds@sumis.edu", contact_phone="+92 300-4444444", description="Data analysis and big data technologies.",  services="Data Labs, Analytics Support, Research"),
+            ])
+            db.session.commit()
+            print("✅ Departments seeded")
+
+        if ComplaintCategory.query.count() == 0:
+            from app.services.seed_categories import seed_categories
+            seed_categories()
+
+        if SupportUnit.query.count() == 0:
+            from app.services.seed_support_units import seed_support_units
+            seed_support_units()
+
+    return app
